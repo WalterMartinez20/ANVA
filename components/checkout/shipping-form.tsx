@@ -148,13 +148,8 @@ export function ShippingForm({
               <SelectValue placeholder="Seleccionar país" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Estados Unidos">Estados Unidos</SelectItem>
-              <SelectItem value="México">México</SelectItem>
-              <SelectItem value="Colombia">Colombia</SelectItem>
-              <SelectItem value="España">España</SelectItem>
-              <SelectItem value="Argentina">Argentina</SelectItem>
-              <SelectItem value="Chile">Chile</SelectItem>
-              <SelectItem value="Perú">Perú</SelectItem>
+              <SelectItem value="El Salvador">El Salvador</SelectItem>
+              <SelectItem value="Guatemala">Guatemala</SelectItem>
             </SelectContent>
           </Select>
         </div>

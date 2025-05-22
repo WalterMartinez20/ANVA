@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import Breadcrumb from "@/components/breadcrumb";
+import Breadcrumb from "@/components/productos/categorias/breadcrumb";
 import { toast } from "@/components/ui/use-toast";
 import { useParams } from "next/navigation";
 
@@ -228,70 +228,7 @@ export default function ProductPage() {
         />
 
         {/* Productos relacionados */}
-        <RelatedProducts
-          products={[
-            {
-              id: 1,
-              name: "Producto relacionado 1",
-              price: 19.99,
-              image: "/carteras/A4.png",
-            },
-            {
-              id: 2,
-              name: "Producto relacionado 2",
-              price: 19.99,
-              image: "/carteras/B1.png",
-            },
-            {
-              id: 3,
-              name: "Producto relacionado 3",
-              price: 19.99,
-              image: "/carteras/C3.png",
-            },
-            {
-              id: 4,
-              name: "Producto relacionado 4",
-              price: 19.99,
-              image: "/carteras/D1.png",
-            },
-            {
-              id: 5,
-              name: "Producto relacionado 5",
-              price: 19.99,
-              image: "/carteras/A4.png",
-            },
-            {
-              id: 6,
-              name: "Producto relacionado 6",
-              price: 19.99,
-              image: "/carteras/C3.png",
-            },
-            {
-              id: 7,
-              name: "Producto relacionado 7",
-              price: 19.99,
-              image: "/carteras/B1.png",
-            },
-            {
-              id: 8,
-              name: "Producto relacionado 8",
-              price: 19.99,
-              image: "/carteras/C3.png",
-            },
-            {
-              id: 9,
-              name: "Producto relacionado 9",
-              price: 19.99,
-              image: "/carteras/D1.png",
-            },
-            {
-              id: 10,
-              name: "Producto relacionado 10",
-              price: 19.99,
-              image: "/carteras/A4.png",
-            },
-          ]}
-        />
+        <RelatedProducts />
       </div>
     </>
   );

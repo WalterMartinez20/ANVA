@@ -7,11 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "@/components/ui/use-toast";
+import { useCart } from "@/components/cart-provider";
+
 import { OrderSummary } from "@/components/checkout/order-summary";
 import { ShippingForm } from "@/components/checkout/shipping-form";
+import { ShippingOptions } from "@/components/checkout/shipping-options";
 import { PaymentMethods } from "@/components/checkout/payment-methods";
 import { TrustIndicators } from "@/components/checkout/trust-indicators";
-import { ShippingOptions } from "@/components/checkout/shipping-options";
 
 // Datos de ejemplo para simular productos en el carrito
 const cartItems = [
@@ -47,12 +49,13 @@ export default function CheckoutPage() {
     city: "",
     state: "",
     zipCode: "",
-    country: "Estados Unidos",
+    country: "El Salvador",
   });
   const [shippingMethod, setShippingMethod] = useState("standard");
   const [paymentMethod, setPaymentMethod] = useState("credit-card");
   const [saveInfo, setSaveInfo] = useState(false);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const { items: cartItems } = useCart();
 
   // Calcular totales
   const subtotal = cartItems.reduce(

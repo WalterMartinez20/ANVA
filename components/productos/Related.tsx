@@ -1,10 +1,11 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { useToast } from "@/components/ui/use-toast";
 
 interface RelatedProduct {
   id: number;
@@ -13,12 +14,45 @@ interface RelatedProduct {
   image: string;
 }
 
-interface RelatedProductsProps {
-  products: RelatedProduct[];
-}
-
-export default function RelatedProducts({ products }: RelatedProductsProps) {
+export default function RelatedProducts() {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [products, setProducts] = useState<RelatedProduct[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await fetch("/api/products");
+        const data = await res.json();
+
+        // Mapear productos para que coincida con RelatedProduct
+        const mappedProducts: RelatedProduct[] = (data.products || []).map(
+          (p: any) => ({
+            id: p.id,
+            name: p.name,
+            price: p.price,
+            image:
+              p.images?.find((img: any) => img.isMain)?.url ||
+              p.images?.[0]?.url ||
+              "/placeholder.svg",
+          })
+        );
+
+        setProducts(mappedProducts);
+      } catch {
+        toast({
+          title: "Error",
+          description: "No se pudieron cargar los productos relacionados",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, [toast]);
 
   const scroll = (direction: "left" | "right") => {
     if (!scrollRef.current) return;
@@ -30,7 +64,15 @@ export default function RelatedProducts({ products }: RelatedProductsProps) {
     });
   };
 
-  if (!products || products.length === 0) return null;
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <p>Cargando productos relacionados...</p>
+      </div>
+    );
+  }
+
+  if (!products.length) return null;
 
   return (
     <div className="mt-12 relative">
@@ -70,7 +112,7 @@ export default function RelatedProducts({ products }: RelatedProductsProps) {
               <div className="p-3">
                 <div className="aspect-square relative mb-3">
                   <img
-                    src={product.image || "/placeholder.svg"}
+                    src={product.image}
                     alt={product.name}
                     className="object-cover w-full h-full rounded-md"
                   />

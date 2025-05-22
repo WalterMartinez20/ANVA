@@ -16,19 +16,13 @@ import {
 interface ProductGeneralTabProps {
   formData: ProductFormData;
   setFormData: React.Dispatch<React.SetStateAction<ProductFormData>>;
+  categoryOptions: string[];
 }
-
-const categoryOptions = [
-  "Carteras",
-  "Bolsos",
-  "Morrales",
-  "Mochilas",
-  "Accesorios",
-];
 
 export const ProductGeneralTab: React.FC<ProductGeneralTabProps> = ({
   formData,
   setFormData,
+  categoryOptions,
 }) => {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -143,7 +137,7 @@ export const ProductGeneralTab: React.FC<ProductGeneralTabProps> = ({
         <Input
           id="colors"
           name="colors"
-          placeholder="Ej: negro, marrón, beige"
+          placeholder="Ej: negro, cafe, rojo_oscuro, beige"
           value={formData.colors?.join(", ") ?? ""}
           onChange={(e) =>
             setFormData((prev) => ({

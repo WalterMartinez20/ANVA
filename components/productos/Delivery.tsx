@@ -20,9 +20,7 @@ export default function DeliveryOptions() {
         <Truck className="h-5 w-5 text-primary mt-0.5" />
         <div>
           <p className="font-medium">Envío a domicilio</p>
-          <p className="text-sm text-muted-foreground">
-            3-5 días hábiles. Envío gratis en compras mayores a $100
-          </p>
+          <p className="text-sm text-muted-foreground">3-5 días hábiles.</p>
         </div>
       </div>
     </div>

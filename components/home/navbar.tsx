@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -23,29 +22,40 @@ import {
   Settings,
   Home,
   Mail,
+  Trash2,
 } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { useCart } from "@/components/cart-provider";
 import { Skeleton } from "@/components/ui/skeleton";
 import * as Tooltip from "@radix-ui/react-tooltip";
+import { useSearchDropdown } from "@/hooks/busqueda/useSearchDropdown";
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { user, isAuthenticated, isAdmin, logout, isLoading } = useAuth();
   const { totalItems, setIsOpen: setCartOpen } = useCart();
-  const pathname = usePathname();
 
-  // Detectar scroll para cambiar estilo de navbar
+  const {
+    query,
+    setQuery,
+    suggestions,
+    history,
+    isDropdownVisible,
+    openDropdown,
+    clearHistory,
+    removeItemFromHistory,
+    handleSearchSubmit,
+    formRef,
+  } = useSearchDropdown();
+
   useEffect(() => {
     const handleScroll = () => {
       const scrollY = window.scrollY;
-
       setIsScrolled((prev) => {
-        if (!prev && scrollY > 60) return true; // activar solo si pasa 60
-        if (prev && scrollY < 30) return false; // desactivar solo si baja de 30
-        return prev; // no cambia
+        if (!prev && scrollY > 60) return true;
+        if (prev && scrollY < 30) return false;
+        return prev;
       });
     };
 
@@ -72,78 +82,88 @@ export default function Navbar() {
           </Link>
           {/* src="/placeholder.svg?height=32&width=32&text=E" */}
 
-          {/* Navegación de escritorio */}
-          <nav className="hidden md:flex items-center space-x-6">
-            <Link
-              href="/"
-              className={`text-lg font-medium transition-colors hover:text-primary ${
-                pathname === "/" ? "text-primary" : "text-gray-600"
-              }`}
+          {/* Campo de búsqueda centrado en escritorio */}
+          <div className="hidden md:flex flex-1 justify-center px-8 max-w-2xl mx-auto">
+            <form
+              onSubmit={handleSearchSubmit}
+              ref={formRef}
+              className="relative w-full"
             >
-              Inicio
-            </Link>
-            <Link
-              href="/productos"
-              className={`text-lg font-medium transition-colors hover:text-primary ${
-                pathname === "/productos" ? "text-primary" : "text-gray-600"
-              }`}
-            >
-              Productos
-            </Link>
-            <Link
-              href="/categorias"
-              className={`text-lg font-medium transition-colors hover:text-primary ${
-                pathname === "/categorias" ? "text-primary" : "text-gray-600"
-              }`}
-            >
-              Categorías
-            </Link>
-            <Link
-              href="/sobre-nosotros"
-              className={`text-lg font-medium transition-colors hover:text-primary ${
-                pathname === "/nosotros" ? "text-primary" : "text-gray-600"
-              }`}
-            >
-              Nosotros
-            </Link>
-            <Link
-              href="/contacto"
-              className={`text-lg font-medium transition-colors hover:text-primary ${
-                pathname === "/contacto" ? "text-primary" : "text-gray-600"
-              }`}
-            >
-              Contacto
-            </Link>
-          </nav>
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-primary" />
+              <input
+                type="text"
+                placeholder="Buscar productos..."
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                onFocus={openDropdown}
+                className="w-full rounded-full border border-gray-300 bg-white py-2.5 pl-11 pr-4 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+              />
+              {isDropdownVisible &&
+                (suggestions.length > 0 || history.length > 0) && (
+                  <div className="absolute z-50 mt-2 w-full bg-white shadow-lg rounded-lg border max-h-60 overflow-y-auto">
+                    <div className="p-2 space-y-1">
+                      {suggestions.length > 0 ? (
+                        suggestions.map((prod) => (
+                          <button
+                            type="button"
+                            key={prod.id}
+                            onClick={() =>
+                              (window.location.href = `/producto/${prod.id}`)
+                            }
+                            className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm text-gray-700"
+                          >
+                            {prod.name}
+                          </button>
+                        ))
+                      ) : history.length > 0 ? (
+                        <>
+                          {history.map((item, i) => (
+                            <div
+                              key={i}
+                              className="flex items-center justify-between px-4 py-2 hover:bg-gray-100 text-sm text-gray-700 rounded"
+                            >
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  (window.location.href = `/buscar?q=${encodeURIComponent(
+                                    item
+                                  )}`)
+                                }
+                                className="text-left flex-1"
+                              >
+                                {item}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => removeItemFromHistory(i)}
+                                className="ml-2 text-gray-400 hover:text-red-500"
+                                title="Eliminar"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          ))}
+                          <div className="text-center mt-2">
+                            <button
+                              type="button"
+                              onClick={clearHistory}
+                              className="text-xs text-red-500 hover:underline"
+                            >
+                              Borrar historial
+                            </button>
+                          </div>
+                        </>
+                      ) : null}
+                    </div>
+                  </div>
+                )}
+            </form>
+          </div>
 
           {/* Acciones */}
           <div className="flex items-center space-x-4">
             <Tooltip.Provider delayDuration={0}>
               <div className="flex items-center space-x-4">
-                {/* 🔍 Buscar */}
-                <Tooltip.Root>
-                  <Tooltip.Trigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setIsSearchOpen(true)}
-                      className="hover:bg-gray-100"
-                    >
-                      <Search className="h-6 w-6" />
-                    </Button>
-                  </Tooltip.Trigger>
-                  <Tooltip.Portal>
-                    <Tooltip.Content
-                      className="bg-black text-white text-xs rounded px-2 py-1 shadow-md"
-                      side="top"
-                      sideOffset={8}
-                    >
-                      Buscar
-                      <Tooltip.Arrow className="fill-black" />
-                    </Tooltip.Content>
-                  </Tooltip.Portal>
-                </Tooltip.Root>
-
                 {/* 📦 Pedidos */}
                 <Tooltip.Root>
                   <Tooltip.Trigger asChild>

@@ -108,3 +108,12 @@ export const uploadImage = async (file: File): Promise<string> => {
   const data = await response.json();
   return data.url;
 };
+
+// Obtener todas las categorías desde la API
+export const getCategories = async (): Promise<string[]> => {
+  const res = await fetch("/api/categories/all"); // ✅ endpoint de categorias
+  if (!res.ok) throw new Error("No se pudieron cargar las categorías");
+
+  const data = await res.json();
+  return data.map((cat: { name: string }) => cat.name);
+};

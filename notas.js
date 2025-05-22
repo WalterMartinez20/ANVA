@@ -9,9 +9,14 @@ Mejorarlo, pero sin reescribirlo todo de cero (solo corregir o sugerir mejoras).
 ¿Te parece si empezamos? Yo te iré pasando el código por bloques, en el orden que te comento abajo.
 
 *--------------------------------------------*--------------------------------------------*--------------------------------------------
-
-*--------------------------------------------*--------------------------------------------*--------------------------------------------
-
+La idea es que hacer un crud de categorias desde el admin, para que el admin pueda crear y editar las categorias,
+como puedo hacer eso para que al darle click a los botones de main-categories me redirigan a sus categorias, pero estas sean dinamicas, es decir,
+la card 1 redirige a categoria/bolsos, pero en el futuro quiero editar esa categoria o poner otra como por ejemplo /categoria/carteras, quiero poder cambiar dinamicamente a que
+categoria me redigira cada card. Tengo pensado algo como que el admin pueda crear sus propias cards y que pueda editarlas, como el texto, imagen que se muestra, la categoria a la que
+se redirecciona, etc. Ademas, sobre ese tema, quiero tambien hacer lo mismo con el slider de la home, ya que quiero que el admin pueda editar todo el slider, cuantos items quiere poner, que
+texto e imagenes mostrar, a donde redirige el link, etc., y lo demas seria como lo que habias dicho, de tener una vista para la busqueda y otra para las carteras, que necesitaria para hacer todo eso?
+Porque ya tengo varios cruds como el de productos y materiales, pero quiero hacer la pagina mas personalizada agregandole esos otros cruds del slider y las categorias. Por el momento ayudame a hacer las paginas
+de busqueda y categoria de productos, luego que ya este todo eso implementemos que sea dinamico por medio del panel del admin
 */
 
 // * ----------------------------------------* ---Este es un diseño alternativo a la vista de productos-----------* -------------------

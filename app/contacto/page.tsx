@@ -203,7 +203,7 @@ export default function ContactoPage() {
           </h2>
           <div className="aspect-video rounded-lg overflow-hidden">
             <img
-              src="/placeholder.svg?height=400&width=800&text=Mapa"
+              src="/logos/logo_principal_letras.png"
               alt="Ubicación de nuestra tienda"
               className="w-full h-full object-cover"
             />

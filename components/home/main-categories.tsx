@@ -33,7 +33,7 @@ export default function MainCategories() {
           {/* Categoría: Bisutería */}
           <div className="group relative overflow-hidden rounded-lg">
             <img
-              src="carteras/E1.png"
+              src="/bisuteria/FON3.png"
               alt="Bisutería"
               className="w-full h-[400px] object-cover transition-transform duration-500 group-hover:scale-105"
             />

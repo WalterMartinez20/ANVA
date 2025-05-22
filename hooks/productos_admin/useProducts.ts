@@ -8,6 +8,8 @@ Usa useEffect para cargar /api/products y /api/materials.
 Devuelve products, materials, isLoading, y sus setters.
 
 🔁 Separa la lógica de carga del componente.
+
+ carga productos y materiales
 */
 
 import { useEffect, useState } from "react";

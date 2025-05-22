@@ -21,7 +21,7 @@ export default function ProductGrid() {
   const { toast } = useToast();
   const { toggleFavoriteAndUpdate } = useProductActions();
 
-  // 🚀 Fetch productos
+  // Fetch productos
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -41,7 +41,7 @@ export default function ProductGrid() {
     fetchProducts();
   }, []);
 
-  // ⭐️ Fetch favoritos
+  // Fetch favoritos
   useEffect(() => {
     const fetchFavorites = async () => {
       if (!isAuthenticated || isGuest) return;

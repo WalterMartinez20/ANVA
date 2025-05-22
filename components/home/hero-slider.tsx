@@ -15,28 +15,28 @@ interface SlideProps {
 
 const slides: SlideProps[] = [
   {
-    image: "/carteras/A4.png",
+    image: "/carteras/H4.png",
     title: "Bolsos Artesanales",
     description:
       "Descubre nuestra colección exclusiva de bolsos hechos a mano con los mejores materiales",
-    buttonText: "Ver Colección",
-    buttonLink: "/producto/1",
+    buttonText: "Ver Bolsos",
+    buttonLink: "/producto/13",
   },
   {
-    image: "/carteras/B1.png",
+    image: "/bisuteria/are25.png",
     title: "Bisutería Única",
     description:
       "Complementa tu estilo con nuestra elegante colección de bisutería artesanal",
     buttonText: "Explorar",
-    buttonLink: "/producto/3",
+    buttonLink: "/producto/14",
   },
   {
-    image: "/carteras/C3.png",
+    image: "/carteras/B4.png",
     title: "Nuevos Diseños",
     description:
       "Conoce nuestras últimas creaciones con diseños exclusivos y materiales sostenibles",
     buttonText: "Ver Novedades",
-    buttonLink: "/producto/4",
+    buttonLink: "/producto/18",
   },
 ];
 

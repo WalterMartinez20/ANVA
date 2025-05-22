@@ -36,11 +36,11 @@ export function ShippingOptions({
             <RadioGroupItem value="standard" id="standard" />
             <div>
               <Label htmlFor="standard" className="font-medium">
-                Envío Estándar
+                Retiro en tienda
               </Label>
               <div className="flex items-center gap-1 text-sm text-gray-500 mt-1">
                 <Truck className="h-3.5 w-3.5" />
-                <span>3-5 días hábiles</span>
+                <span>Disponible para retiro en nuestra tienda principal</span>
               </div>
             </div>
           </div>

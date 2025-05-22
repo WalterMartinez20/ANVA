@@ -42,6 +42,7 @@ interface ProductDialogProps {
   setProductMaterials: React.Dispatch<React.SetStateAction<ProductMaterial[]>>;
   activeTab: ProductTab;
   setActiveTab: (tab: ProductTab) => void;
+  categoryOptions: string[];
 }
 
 export const ProductDialog: React.FC<ProductDialogProps> = ({
@@ -59,6 +60,7 @@ export const ProductDialog: React.FC<ProductDialogProps> = ({
   materials,
   productMaterials,
   setProductMaterials,
+  categoryOptions,
 }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -126,6 +128,7 @@ export const ProductDialog: React.FC<ProductDialogProps> = ({
               <ProductGeneralTab
                 formData={formData}
                 setFormData={setFormData}
+                categoryOptions={categoryOptions}
               />
             </TabsContent>
 

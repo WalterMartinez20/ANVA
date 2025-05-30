@@ -17,24 +17,24 @@ export default function Info({ product, compact = false }: Props) {
     rating = 4,
     reviews = 0,
   } = product;
+
+  const safePrice =
+    typeof price === "number" ? `$${price.toFixed(2)}` : "Precio no disponible";
+  const safeOriginal =
+    typeof originalPrice === "number" ? `$${originalPrice.toFixed(2)}` : null;
+
   return compact ? (
-    // 🧱 Vista compacta optimizada estilo tienda
     <div className="flex flex-col gap-1">
-      {/* Categoría */}
       {category && (
         <p className="text-xs text-muted-foreground uppercase tracking-wide">
           {category}
         </p>
       )}
-
-      {/* Nombre del producto como link */}
       <Link href={`/producto/${id}`}>
         <h3 className="text-[15px] font-medium leading-snug truncate hover:underline text-foreground">
           {name}
         </h3>
       </Link>
-
-      {/* Rating + reviews */}
       <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
         {Array.from({ length: 5 }).map((_, i) => (
           <Star
@@ -46,33 +46,25 @@ export default function Info({ product, compact = false }: Props) {
         ))}
         <span className="ml-1">({reviews})</span>
       </div>
-
-      {/* Precio */}
       <div className="flex items-center gap-2">
         <span className="text-[15px] font-semibold text-foreground">
-          ${price.toFixed(2)}
+          {safePrice}
         </span>
-        {originalPrice && (
+        {safeOriginal && (
           <span className="text-[12px] text-muted-foreground line-through">
-            ${originalPrice.toFixed(2)}
+            {safeOriginal}
           </span>
         )}
       </div>
     </div>
   ) : (
-    // 🧱 Vista normal (sin cambios)
     <div className="mb-6 space-y-4 border-b pb-6">
-      {/* Categoría */}
       <p className="text-sm uppercase tracking-wider text-muted-foreground">
         {category || "Sin categoría"}
       </p>
-
-      {/* Nombre del producto */}
       <h1 className="text-3xl font-semibold text-foreground leading-tight">
         {name}
       </h1>
-
-      {/* Rating y número de reseñas */}
       <div className="flex items-center gap-2">
         <div className="flex">
           {Array.from({ length: 5 }).map((_, i) => (
@@ -88,15 +80,11 @@ export default function Info({ product, compact = false }: Props) {
           ({reviews} reseñas)
         </span>
       </div>
-
-      {/* Precio actual + precio anterior */}
       <div className="flex items-center gap-3">
-        <span className="text-2xl font-bold text-primary">
-          ${price.toFixed(2)}
-        </span>
-        {originalPrice && (
+        <span className="text-2xl font-bold text-primary">{safePrice}</span>
+        {safeOriginal && (
           <span className="text-base text-muted-foreground line-through">
-            ${originalPrice.toFixed(2)}
+            {safeOriginal}
           </span>
         )}
       </div>

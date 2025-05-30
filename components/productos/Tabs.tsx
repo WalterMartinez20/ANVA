@@ -1,6 +1,6 @@
 import { ProductMaterial } from "@/types/producto_admin";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Info, List, Star, Truck, CreditCard } from "lucide-react";
+import { Info, List, Star } from "lucide-react";
 import PaymentMethods from "@/components/productos/PaymentMethods";
 import DeliveryOptions from "@/components/productos/Delivery";
 import Reviews from "@/components/productos/Reviews";
@@ -39,7 +39,7 @@ export default function ProductTabs({
               key={value}
               value={value}
               className="flex-1 text-center py-3 text-sm font-semibold text-gray-700
-                  border-b-2 border-transparent data-[state=active]:border-primary 
+                  border-b-2 border-transparent data-[state=active]:border-primary
                   data-[state=active]:text-primary hover:bg-gray-200 transition-colors"
             >
               <div className="flex items-center justify-center gap-2">

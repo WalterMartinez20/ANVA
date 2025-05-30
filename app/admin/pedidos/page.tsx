@@ -48,8 +48,8 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
-// import { formatDate, formatPrice } from "@/lib/utils";
-import OrderTracking from "@/components/order-tracking";
+import { formatDate, formatPrice } from "@/lib/utils";
+import OrderTracking from "@/components/orders/OrderProgress";
 // import * as XLSX from "xlsx";
 
 interface ProductImage {
@@ -905,7 +905,7 @@ export default function AdminPedidosPage() {
                       </div>
                     </div>
                   </TableCell>
-                  {/* <TableCell>{formatDate(order.createdAt)}</TableCell> */}
+                  <TableCell>{formatDate(order.createdAt)}</TableCell>
                   <TableCell>{getStatusBadge(order.status)}</TableCell>
                   <TableCell>${order.total.toFixed(2)}</TableCell>
                   <TableCell>
@@ -1020,20 +1020,20 @@ export default function AdminPedidosPage() {
                   <div className="space-y-1 text-sm">
                     <p>
                       <span className="font-medium">Nombre:</span>{" "}
-                      {selectedOrder.user.nombres}{" "}
-                      {selectedOrder.user.apellidos}
+                      {/* {selectedOrder.user.nombres}{" "} */}
+                      {/* {selectedOrder.user.apellidos} */}
                     </p>
                     <p>
                       <span className="font-medium">Email:</span>{" "}
-                      {selectedOrder.user.email}
+                      {/* {selectedOrder.user.email} */}
                     </p>
                     <p>
                       <span className="font-medium">Teléfono:</span>{" "}
-                      {selectedOrder.phone || "No especificado"}
+                      {/* {selectedOrder.phone || "No especificado"} */}
                     </p>
                     <p>
                       <span className="font-medium">Dirección:</span>{" "}
-                      {selectedOrder.address || "No especificada"}
+                      {/* {selectedOrder.address || "No especificada"} */}
                     </p>
                   </div>
                 </div>

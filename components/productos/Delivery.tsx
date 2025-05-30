@@ -1,28 +1,33 @@
-// Bloque con métodos de entrega
 import { Store, Truck } from "lucide-react";
 
 export default function DeliveryOptions() {
+  const options = [
+    {
+      title: "Retiro en tienda",
+      icon: <Store className="h-6 w-6 text-primary" />,
+      description: "Disponible en nuestra tienda principal.",
+    },
+    {
+      title: "Envío a domicilio",
+      icon: <Truck className="h-6 w-6 text-primary" />,
+      description: "Entrega en 3 a 5 días hábiles.",
+    },
+  ];
+
   return (
-    <div className="space-y-4">
-      <h3 className="font-medium">Métodos de entrega disponibles</h3>
-
-      <div className="border rounded-md p-4 flex items-start gap-3">
-        <Store className="h-5 w-5 text-primary mt-0.5" />
-        <div>
-          <p className="font-medium">Retiro en tienda</p>
-          <p className="text-sm text-muted-foreground">
-            Disponible para retiro en nuestra tienda principal
-          </p>
+    <div className="mt-2 grid sm:grid-cols-2 gap-4">
+      {options.map((option) => (
+        <div
+          key={option.title}
+          className="flex items-center gap-4 border rounded-md p-4 bg-white shadow-sm hover:shadow-md transition"
+        >
+          <div className="bg-primary/10 p-2 rounded-full">{option.icon}</div>
+          <div>
+            <p className="text-sm font-semibold">{option.title}</p>
+            <p className="text-sm text-gray-600">{option.description}</p>
+          </div>
         </div>
-      </div>
-
-      <div className="border rounded-md p-4 flex items-start gap-3">
-        <Truck className="h-5 w-5 text-primary mt-0.5" />
-        <div>
-          <p className="font-medium">Envío a domicilio</p>
-          <p className="text-sm text-muted-foreground">3-5 días hábiles.</p>
-        </div>
-      </div>
+      ))}
     </div>
   );
 }

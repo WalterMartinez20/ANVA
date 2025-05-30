@@ -3,10 +3,10 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/auth-context";
-import { CartProvider } from "@/components/cart-provider";
+import { CartProvider } from "@/components/cart/cart-provider";
 import { Toaster } from "@/components/ui/toaster";
-import Navbar from "@/components/home/navbar";
-import Cart from "@/components/cart";
+import Navbar from "@/components/navbar/navbar";
+import Cart from "@/components/cart/cart";
 import Footer from "@/components/home/footer";
 
 const inter = Inter({ subsets: ["latin"] });

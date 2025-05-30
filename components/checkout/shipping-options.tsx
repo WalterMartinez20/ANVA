@@ -1,16 +1,79 @@
 "use client";
 
 import type React from "react";
-
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { ChevronRight, Truck, Clock } from "lucide-react";
+import clsx from "clsx";
 
 interface ShippingOptionsProps {
   shippingMethod: string;
   setShippingMethod: React.Dispatch<React.SetStateAction<string>>;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+}
+
+interface Option {
+  value: string;
+  label: string;
+  description: string;
+  icon: React.ReactNode;
+  price: string;
+}
+
+const options: Option[] = [
+  {
+    value: "standard",
+    label: "Retiro en tienda",
+    description: "Disponible para retiro en nuestra tienda principal",
+    icon: <Truck className="h-4 w-4 text-muted-foreground" />,
+    price: "Gratis",
+  },
+  {
+    value: "priority",
+    label: "Envío Prioritario",
+    description: "2-3 días hábiles",
+    icon: <Clock className="h-4 w-4 text-muted-foreground" />,
+    price: "$8.99",
+  },
+  {
+    value: "express",
+    label: "Envío Express",
+    description: "1-2 días hábiles",
+    icon: <Clock className="h-4 w-4 text-muted-foreground" />,
+    price: "$12.99",
+  },
+];
+
+function ShippingOptionCard({
+  option,
+  selected,
+}: {
+  option: Option;
+  selected: boolean;
+}) {
+  return (
+    <div
+      className={clsx(
+        "flex items-center justify-between border rounded-lg p-4 transition-colors",
+        selected ? "border-primary bg-primary/5" : "border-gray-200"
+      )}
+    >
+      <div className="flex items-center gap-3">
+        <RadioGroupItem value={option.value} id={option.value} />
+        <div>
+          <Label htmlFor={option.value} className="font-medium">
+            {option.label}
+          </Label>
+          <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
+            {option.icon}
+            <span>{option.description}</span>
+          </div>
+        </div>
+      </div>
+      <span className="font-medium text-sm text-gray-800">{option.price}</span>
+    </div>
+  );
 }
 
 export function ShippingOptions({
@@ -19,77 +82,22 @@ export function ShippingOptions({
   onSubmit,
 }: ShippingOptionsProps) {
   return (
-    <form onSubmit={onSubmit} className="space-y-6">
+    <form
+      onSubmit={onSubmit}
+      className="space-y-6 bg-white p-6 rounded-md border"
+    >
       <RadioGroup
         value={shippingMethod}
         onValueChange={setShippingMethod}
         className="space-y-3"
       >
-        <div
-          className={`flex items-center justify-between border rounded-lg p-4 ${
-            shippingMethod === "standard"
-              ? "border-primary bg-primary/5"
-              : "border-gray-200"
-          }`}
-        >
-          <div className="flex items-center gap-3">
-            <RadioGroupItem value="standard" id="standard" />
-            <div>
-              <Label htmlFor="standard" className="font-medium">
-                Retiro en tienda
-              </Label>
-              <div className="flex items-center gap-1 text-sm text-gray-500 mt-1">
-                <Truck className="h-3.5 w-3.5" />
-                <span>Disponible para retiro en nuestra tienda principal</span>
-              </div>
-            </div>
-          </div>
-          <span className="font-medium text-green-600">Gratis</span>
-        </div>
-
-        <div
-          className={`flex items-center justify-between border rounded-lg p-4 ${
-            shippingMethod === "priority"
-              ? "border-primary bg-primary/5"
-              : "border-gray-200"
-          }`}
-        >
-          <div className="flex items-center gap-3">
-            <RadioGroupItem value="priority" id="priority" />
-            <div>
-              <Label htmlFor="priority" className="font-medium">
-                Envío Prioritario
-              </Label>
-              <div className="flex items-center gap-1 text-sm text-gray-500 mt-1">
-                <Clock className="h-3.5 w-3.5" />
-                <span>2-3 días hábiles</span>
-              </div>
-            </div>
-          </div>
-          <span className="font-medium">$8.99</span>
-        </div>
-
-        <div
-          className={`flex items-center justify-between border rounded-lg p-4 ${
-            shippingMethod === "express"
-              ? "border-primary bg-primary/5"
-              : "border-gray-200"
-          }`}
-        >
-          <div className="flex items-center gap-3">
-            <RadioGroupItem value="express" id="express" />
-            <div>
-              <Label htmlFor="express" className="font-medium">
-                Envío Express
-              </Label>
-              <div className="flex items-center gap-1 text-sm text-gray-500 mt-1">
-                <Clock className="h-3.5 w-3.5" />
-                <span>1-2 días hábiles</span>
-              </div>
-            </div>
-          </div>
-          <span className="font-medium">$12.99</span>
-        </div>
+        {options.map((opt) => (
+          <ShippingOptionCard
+            key={opt.value}
+            option={opt}
+            selected={shippingMethod === opt.value}
+          />
+        ))}
       </RadioGroup>
 
       <div className="pt-4">

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
-import { useCart } from "@/components/cart-provider";
+import { useCart } from "@/components/cart/cart-provider";
 import { useToast } from "@/components/ui/use-toast";
 
 import { colorMap } from "@/lib/colorMap";
@@ -83,7 +83,7 @@ export default function ProductCard({
       <div className="relative bg-white">
         <Link href={`/producto/${product.id}`}>
           <ProductGallerySlider
-            images={product.images}
+            images={Array.isArray(product.images) ? product.images : []}
             altText={product.name}
             aspectRatio="square"
             rounded={false}

@@ -54,10 +54,24 @@ export async function GET(
         orderBy,
         skip,
         take: limit,
-        include: { images: true },
+        include: {
+          images: true,
+          category: {
+            select: { name: true },
+          },
+        },
       }),
       prisma.product.count({ where }),
     ]);
+
+    // 🔁 Estandariza el formato como en /api/search
+    const mappedProducts = products.map((p) => ({
+      id: p.id,
+      name: p.name,
+      price: p.price,
+      category: p.category?.name || "",
+      images: p.images,
+    }));
 
     return NextResponse.json({
       category: {
@@ -65,7 +79,7 @@ export async function GET(
         description: category.description,
         slug: category.slug,
       },
-      products,
+      products: mappedProducts,
       pagination: {
         total,
         page,

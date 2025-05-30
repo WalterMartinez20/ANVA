@@ -15,7 +15,7 @@ export interface CartItem {
   price: number;
   quantity: number;
   image: string;
-  customization?: string; // 👈 esto permite distinguir variantes
+  customization?: string;
 }
 
 interface CartContextType {
@@ -58,20 +58,27 @@ export function CartProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("cart", JSON.stringify(items));
   }, [items]);
 
+  // Escuchar evento para limpiar carrito (desde logout)
+  useEffect(() => {
+    const handleClearCart = () => {
+      setItems([]);
+    };
+
+    window.addEventListener("clear-cart", handleClearCart);
+    return () => window.removeEventListener("clear-cart", handleClearCart);
+  }, []);
+
   const addItem = (item: CartItem) => {
     setItems((prevItems) => {
-      // Verificar si el item ya existe en el carrito
       const existingItemIndex = prevItems.findIndex(
         (i) => i.id === item.id && i.customization === item.customization
-      ); //Esto asegura que dos productos con el mismo id pero distinto color, se traten como ítems distintos.
+      );
 
       if (existingItemIndex >= 0) {
-        // Si existe, actualizar la cantidad
         const updatedItems = [...prevItems];
         updatedItems[existingItemIndex].quantity += item.quantity;
         return updatedItems;
       } else {
-        // Si no existe, añadir el nuevo item
         return [...prevItems, item];
       }
     });

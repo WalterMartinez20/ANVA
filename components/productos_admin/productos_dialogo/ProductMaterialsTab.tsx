@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/select";
 import { Trash2 } from "lucide-react";
 import { Material, ProductMaterial } from "@/types/producto_admin";
+import { toast } from "@/components/ui/use-toast";
 
 interface Props {
   materials: Material[];
@@ -35,12 +36,20 @@ export const ProductMaterialsTab: React.FC<Props> = ({
   const [newMaterialId, setNewMaterialId] = useState<number | "">("");
 
   const handleAddMaterial = () => {
-    if (!newMaterialId) return;
+    if (newMaterialId === "") {
+      return toast({ title: "Selecciona un material." });
+    }
 
     const exists = productMaterials.some((m) => m.materialId === newMaterialId);
-    if (exists) return;
+    if (exists) {
+      return toast({ title: "Este material ya fue añadido." });
+    }
 
     const material = materials.find((m) => m.id === newMaterialId);
+    if (!material) {
+      toast({ title: "Material no encontrado." });
+      return;
+    }
 
     setProductMaterials([
       ...productMaterials,
@@ -73,11 +82,22 @@ export const ProductMaterialsTab: React.FC<Props> = ({
               <SelectValue placeholder="Seleccionar material" />
             </SelectTrigger>
             <SelectContent>
-              {materials.map((material) => (
-                <SelectItem key={material.id} value={material.id.toString()}>
-                  {material.name}
-                </SelectItem>
-              ))}
+              {materials.map((material) => {
+                const isAdded = productMaterials.some(
+                  (pm) => pm.materialId === material.id
+                );
+
+                return (
+                  <SelectItem
+                    key={material.id}
+                    value={material.id.toString()}
+                    disabled={isAdded}
+                    className={isAdded ? "text-muted-foreground" : ""}
+                  >
+                    {material.name}
+                  </SelectItem>
+                );
+              })}
             </SelectContent>
           </Select>
         </div>
@@ -118,8 +138,8 @@ export const ProductMaterialsTab: React.FC<Props> = ({
           </TableBody>
         </Table>
       ) : (
-        <div className="text-center py-8 text-muted-foreground">
-          No hay materiales asignados a este producto.
+        <div className="text-center py-8 text-red-500 font-medium">
+          No hay materiales asignados. Agrega al menos uno.
         </div>
       )}
     </div>

@@ -1,32 +1,24 @@
-// components/productos/PaymentMethods.tsx
 export default function PaymentMethods() {
   const methods = [
     {
-      name: "Visa",
-      url: "https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png",
+      name: "Efectivo",
+      url: "https://cdn-icons-png.flaticon.com/512/2488/2488749.png",
     },
     {
-      name: "Mastercard",
-      url: "https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png",
-    },
-    {
-      name: "American Express",
-      url: "https://cdn.freelogovectors.net/wp-content/uploads/2023/05/american-express-logo-freelogovectors.net_-1.png",
-    },
-    {
-      name: "PayPal",
-      url: "https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg",
+      name: "Depósito Bancario",
+      url: "https://cdn-icons-png.flaticon.com/512/10842/10842175.png",
     },
   ];
 
   return (
-    <div className="flex gap-2 mt-2">
+    <div className="flex gap-4 mt-2">
       {methods.map((method) => (
         <img
           key={method.name}
           src={method.url}
           alt={method.name}
-          className="h-6"
+          className="h-16 w-auto object-contain"
+          title={method.name}
         />
       ))}
     </div>

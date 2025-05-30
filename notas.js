@@ -7,7 +7,8 @@ Necesito que me ayudes a:
 Revisar errores de lógica o estructura en lo que ya está hecho.
 Mejorarlo, pero sin reescribirlo todo de cero (solo corregir o sugerir mejoras).
 ¿Te parece si empezamos? Yo te iré pasando el código por bloques, en el orden que te comento abajo.
-
+*--------------------------------------------*--------------------------------------------*--------------------------------------------
+Esa app la tengo en un repo en github donde soy el propietario, el repo tiene con dos ramas, en la rama main tengo la app normal, pero en la segunda rama he creado varias funciones y mejorado la app con categorias, busquedas, politicas, etc., como hago para que la rama main se actualice con esos cambios sin romper nada? 
 *--------------------------------------------*--------------------------------------------*--------------------------------------------
 La idea es que hacer un crud de categorias desde el admin, para que el admin pueda crear y editar las categorias,
 como puedo hacer eso para que al darle click a los botones de main-categories me redirigan a sus categorias, pero estas sean dinamicas, es decir,
@@ -19,7 +20,10 @@ Porque ya tengo varios cruds como el de productos y materiales, pero quiero hace
 de busqueda y categoria de productos, luego que ya este todo eso implementemos que sea dinamico por medio del panel del admin
 */
 
-// * ----------------------------------------* ---Este es un diseño alternativo a la vista de productos-----------* -------------------
+// Tengo esta page de pedidos que te pase, pero quiero que le agregues la funcion de que al dar click a un pedido, se puedan ver los detalles, asi como en este otro ejemplo mejorado. Al archivo que ya te pase, solo agregale la funcion de que se despliegue la ventana al dar click en ver detalles y tambien agregar el boton cancelar pedido a la par de cada pedido y la opcion de ver el historial de pedidos. Dame el codigo completo y mejorado para descargar como archivo .tsx ya que es muy grande el archivo
+
+// * ---------------------------------------- Este es un diseño alternativo a la vista de productos ------------------------------
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -757,3 +761,160 @@ export default function ProductPage({ params }: { params: { id: string } }) {
     </div>
   );
 }
+
+//*-------------------------------------- Ejemplo de diseño de navegación de politicas -----------------------------------*
+
+"use client";
+
+import { usePathname } from "next/navigation";
+import { Ban, Truck, RotateCcw } from "lucide-react";
+import PoliticaCard from "./PoliticaCard";
+
+export default function PoliticasNavCards() {
+  const pathname = usePathname();
+
+  const items = [
+    {
+      href: "/politicas/cancelacion",
+      icon: <Ban className="h-6 w-6" />,
+      title: "Cancelación",
+      description: "Cómo cancelar un pedido y en qué casos aplica.",
+    },
+    {
+      href: "/politicas/entrega",
+      icon: <Truck className="h-6 w-6" />,
+      title: "Entrega",
+      description: "Tiempos, métodos y seguimiento de envíos.",
+    },
+    {
+      href: "/politicas/devolucion",
+      icon: <RotateCcw className="h-6 w-6" />,
+      title: "Devolución",
+      description: "Cuándo y cómo solicitar una devolución.",
+    },
+  ];
+
+  return (
+    <div className="mb-10">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {items.map((item) => (
+          <PoliticaCard
+            key={item.href}
+            href={item.href}
+            title={item.title}
+            icon={item.icon}
+            description={item.description}
+            active={pathname === item.href}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/*
+*---------------------------------------------- Ejemplo de uso de prisma con los pedidos --------------------------------------------*
+Gracias por compartir el esquema de Prisma. Está bien estructurado y cubre muy bien los aspectos fundamentales de una tienda online. Ahora te muestro un ejemplo **práctico y realista** de cómo usar las tablas `Order`, `OrderItem` y `OrderStatusHistory` en una función de backend usando Prisma Client.
+
+---
+
+### 🎯 **Caso de uso:** Crear una orden con sus ítems y el historial de estado inicial.
+
+#### 💡 Supuestos:
+
+* El usuario está autenticado.
+* Tiene productos en su carrito con cantidades.
+* La orden se crea con estado `PENDING`.
+
+---
+
+### ✅ **Ejemplo en un handler o servicio (TypeScript/Next.js API Route o handler)**
+
+```ts
+import { prisma } from '@/lib/prisma';
+import { OrderStatus } from '@prisma/client';
+
+type CreateOrderParams = {
+  userId: number;
+  items: {
+    productId: number;
+    quantity: number;
+    price: number;
+  }[];
+  address?: string;
+  phone?: string;
+  notes?: string;
+};
+
+export async function createOrder({
+  userId,
+  items,
+  address,
+  phone,
+  notes
+}: CreateOrderParams) {
+  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+  const order = await prisma.order.create({
+    data: {
+      userId,
+      total,
+      address,
+      phone,
+      notes,
+      status: OrderStatus.PENDING,
+      items: {
+        create: items.map(item => ({
+          productId: item.productId,
+          quantity: item.quantity,
+          price: item.price,
+        })),
+      },
+      statusHistory: {
+        create: {
+          status: OrderStatus.PENDING,
+          notes: 'Orden creada',
+        },
+      },
+    },
+    include: {
+      items: true,
+      statusHistory: true,
+    },
+  });
+
+  return order;
+}
+```
+
+---
+
+### 📦 ¿Qué hace este ejemplo?
+
+1. Calcula el total de la orden.
+2. Crea una nueva orden vinculada al usuario.
+3. Registra los `OrderItem`s en la tabla relacionada.
+4. Registra el primer `OrderStatusHistory` con estado `PENDING`.
+
+---
+
+### 🧪 ¿Cómo lo llamarías?
+
+```ts
+const newOrder = await createOrder({
+  userId: 1,
+  items: [
+    { productId: 10, quantity: 2, price: 25.0 },
+    { productId: 5, quantity: 1, price: 50.0 }
+  ],
+  address: 'Calle Falsa 123',
+  phone: '+123456789',
+  notes: 'Por favor entregar después de las 18 hs'
+});
+```
+
+---
+
+¿Querés que te muestre cómo hacer una función para actualizar el estado de una orden y registrar ese cambio en `OrderStatusHistory` también?
+
+*/

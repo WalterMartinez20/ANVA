@@ -1,14 +1,22 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { useAuth } from "@/contexts/auth-context"
-import { useToast } from "@/components/ui/use-toast"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { Eye, EyeOff } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { useAuth } from "@/contexts/auth-context";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function RegistroPage() {
   const [formData, setFormData] = useState({
@@ -17,51 +25,65 @@ export default function RegistroPage() {
     email: "",
     password: "",
     confirmPassword: "",
-  })
-  const [isLoading, setIsLoading] = useState(false)
-  const { toast } = useToast()
-  const router = useRouter()
-  const { register } = useAuth() // 👈 obtenemos la función register del contexto
+  });
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const { toast } = useToast();
+  const router = useRouter();
+  const { register } = useAuth();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   const showError = (message: string) => {
-    toast({ title: "Error", description: message, variant: "destructive" })
-  }
+    toast({ title: "Error", description: message, variant: "destructive" });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
+    e.preventDefault();
+    setIsLoading(true);
 
-    if (formData.password !== formData.confirmPassword) {
-      showError("Las contraseñas no coinciden")
-      setIsLoading(false)
-      return
+    const { nombres, apellidos, email, password, confirmPassword } = formData;
+
+    if (!nombres || !apellidos || !email || !password || !confirmPassword) {
+      showError("Todos los campos son requeridos");
+      setIsLoading(false);
+      return;
+    }
+
+    if (password.length < 6) {
+      showError("La contraseña debe tener al menos 6 caracteres");
+      setIsLoading(false);
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      showError("Las contraseñas no coinciden");
+      setIsLoading(false);
+      return;
     }
 
     try {
-      await register({
-        nombres: formData.nombres,
-        apellidos: formData.apellidos,
-        email: formData.email,
-        password: formData.password,
-      })
+      await register({ nombres, apellidos, email, password });
 
       toast({
         title: "Registro exitoso",
         description: "Tu cuenta ha sido creada correctamente",
-      })
-      router.push("/")
+      });
+
+      router.push("/");
     } catch (error) {
-      console.error("Registro fallido:", error)
-      showError(error instanceof Error ? error.message : "Error desconocido al registrar")
+      console.error("Registro fallido:", error);
+      showError(error instanceof Error ? error.message : "Error desconocido");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-50">
@@ -70,6 +92,7 @@ export default function RegistroPage() {
           <CardTitle className="text-2xl font-bold">Crear una cuenta</CardTitle>
           <CardDescription>Regístrate para comenzar a comprar</CardDescription>
         </CardHeader>
+
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
@@ -96,6 +119,7 @@ export default function RegistroPage() {
                 />
               </div>
             </div>
+
             <div className="space-y-2">
               <Label htmlFor="email">Correo Electrónico</Label>
               <Input
@@ -108,35 +132,58 @@ export default function RegistroPage() {
                 required
               />
             </div>
+
             <div className="space-y-2">
               <Label htmlFor="password">Contraseña</Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                placeholder="Contraseña*"
-                value={formData.password}
-                onChange={handleChange}
-                required
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Contraseña*"
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
+                  minLength={6}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
+
             <div className="space-y-2">
               <Label htmlFor="confirmPassword">Confirmar Contraseña</Label>
-              <Input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                placeholder="Confirmar contraseña*"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                required
-              />
+              <div className="relative">
+                <Input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type={showConfirm ? "text" : "password"}
+                  placeholder="Confirmar contraseña*"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirm((prev) => !prev)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                >
+                  {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
+
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Registrando..." : "Registrarse"}
             </Button>
           </form>
         </CardContent>
+
         <CardFooter className="flex justify-center">
           <p className="text-sm text-gray-600">
             ¿Ya tienes una cuenta?{" "}
@@ -147,5 +194,5 @@ export default function RegistroPage() {
         </CardFooter>
       </Card>
     </div>
-  )
+  );
 }

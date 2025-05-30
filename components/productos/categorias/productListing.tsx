@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Breadcrumb from "@/components/productos/categorias/breadcrumb";
@@ -10,6 +10,7 @@ import SortSelector from "@/components/sort-selector";
 import ProductGrid from "@/components/home/product-grid";
 import { toast } from "@/components/ui/use-toast";
 import { Product } from "@/types/producto_admin";
+import { useFavorites } from "@/hooks/productos/useFavorites";
 
 interface ProductListingPageProps {
   isSearchPage?: boolean;
@@ -22,16 +23,34 @@ export default function ProductListingPage({
 }: ProductListingPageProps) {
   const searchParams = useSearchParams();
   const slug = slugFromProps!;
-  const query = searchParams.get("q") || "";
-  const pageParam = Number(searchParams.get("page")) || 1;
+  const [query, setQuery] = useState("");
+  const [queryReady, setQueryReady] = useState(!isSearchPage); // <- NUEVO
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(pageParam);
+  const [currentPage, setCurrentPage] = useState(
+    Number(searchParams.get("page")) || 1
+  );
   const [totalPages, setTotalPages] = useState(1);
   const [sort, setSort] = useState("name_asc");
+  const [hasSearched, setHasSearched] = useState(false);
+  const { favorites, toggleFavorite } = useFavorites();
+
+  useEffect(() => {
+    const q = searchParams.get("q") || "";
+    setQuery(q);
+
+    // Solo activar queryReady si está en modo búsqueda
+    if (isSearchPage) {
+      setQueryReady(!!q); // solo si hay un valor
+    } else {
+      setQueryReady(true);
+    }
+  }, [searchParams, isSearchPage]);
 
   useEffect(() => {
     const fetchProducts = async () => {
+      if (isSearchPage && !queryReady) return;
+
       setIsLoading(true);
       try {
         const params = new URLSearchParams({
@@ -40,18 +59,20 @@ export default function ProductListingPage({
           sort,
         });
 
-        const min = searchParams.get("min_price");
-        const max = searchParams.get("max_price");
+        const min = searchParams.get("min");
+        const max = searchParams.get("max");
         const rating = searchParams.get("rating");
 
         if (min) params.append("min_price", min);
         if (max) params.append("max_price", max);
         if (rating) params.append("rating", rating);
+        if (isSearchPage && query) params.append("q", query);
 
         let url = "";
         if (isSearchPage) {
-          if (query) params.append("q", query);
           url = `/api/search?${params.toString()}`;
+        } else if (slug === "todos") {
+          url = `/api/products?${params.toString()}`;
         } else {
           url = `/api/categories/${slug}?${params.toString()}`;
         }
@@ -61,7 +82,7 @@ export default function ProductListingPage({
         const data = await res.json();
         setProducts(data.products || []);
         setTotalPages(data.pagination?.totalPages || 1);
-        console.log(data);
+        setHasSearched(true);
       } catch (error) {
         console.error("Error al obtener productos:", error);
         toast({
@@ -75,7 +96,15 @@ export default function ProductListingPage({
     };
 
     fetchProducts();
-  }, [slug, query, currentPage, sort, searchParams]);
+  }, [
+    slug,
+    query,
+    queryReady, // <- NUEVO
+    currentPage,
+    sort,
+    searchParams,
+    isSearchPage,
+  ]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -112,14 +141,13 @@ export default function ProductListingPage({
                   : "Todos los productos"
                 : slug?.replace(/-/g, " ")?.toUpperCase()}
             </h1>
-            <SortSelector value={sort} onChange={setSort} />
           </div>
 
           {isLoading ? (
             <div className="flex justify-center items-center h-40">
               <Loader2 className="h-6 w-6 animate-spin text-primary" />
             </div>
-          ) : products.length === 0 ? (
+          ) : products.length === 0 && hasSearched ? (
             <div className="text-center py-12 border rounded-lg">
               <h2 className="text-xl font-medium mb-2">
                 No se encontraron productos
@@ -133,7 +161,11 @@ export default function ProductListingPage({
             </div>
           ) : (
             <>
-              <ProductGrid />
+              <ProductGrid
+                products={products}
+                favorites={favorites}
+                onToggleFavorite={toggleFavorite}
+              />
 
               {totalPages > 1 && (
                 <div className="flex justify-center mt-8 gap-2">

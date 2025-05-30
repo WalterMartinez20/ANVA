@@ -182,6 +182,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     try {
       await fetch("/api/auth/logout", { method: "POST" });
+
+      // 🧹 Limpiar carrito de localStorage
+      localStorage.removeItem("cart");
+
+      // 🧹 Disparar evento personalizado (opcional) para que el CartProvider también lo borre si es necesario
+      window.dispatchEvent(new Event("clear-cart"));
+
       setUser(null);
       toast({ title: "Sesión cerrada", description: "Has cerrado sesión" });
       router.push("/");

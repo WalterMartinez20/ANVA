@@ -1,6 +1,5 @@
-/*
-Este componente mostrará la tabla de productos, con sus columnas, imágenes, acciones, y callbacks para editar o eliminar productos.
-*/
+// * Aqui se muestra la tabla de productos, con sus columnas, imágenes, acciones, y callbacks para editar o eliminar productos.
+
 "use client";
 
 import { Product } from "@/types/producto_admin";
@@ -93,10 +92,16 @@ export const ProductTable: React.FC<ProductTableProps> = ({
             </TableRow>
           ) : (
             products.map((product) => (
-              <TableRow key={product.id}>
-                <TableCell className="font-medium">{product.id}</TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
+              <TableRow
+                key={product.id}
+                className="hover:bg-muted/50 transition-colors"
+              >
+                <TableCell className="font-medium text-sm text-gray-800">
+                  {product.id}
+                </TableCell>
+
+                <TableCell className="text-sm font-medium text-gray-900">
+                  <div className="flex items-center gap-3 max-w-[220px] truncate">
                     {product.images?.length > 0 ? (
                       <img
                         src={
@@ -104,23 +109,35 @@ export const ProductTable: React.FC<ProductTableProps> = ({
                           product.images[0].url
                         }
                         alt={product.name}
-                        className="w-10 h-10 object-cover rounded-md"
+                        className="w-10 h-10 object-cover rounded-md border"
                       />
                     ) : (
-                      <div className="w-10 h-10 bg-muted flex items-center justify-center rounded-md">
+                      <div className="w-10 h-10 bg-gray-100 flex items-center justify-center rounded-md border">
                         <ImageIcon className="h-5 w-5 text-muted-foreground" />
                       </div>
                     )}
-                    {product.name}
+                    <span className="truncate">{product.name}</span>
                   </div>
                 </TableCell>
-                <TableCell>${product.price.toFixed(2)}</TableCell>
-                <TableCell>{product.category || "-"}</TableCell>
+
+                <TableCell className="text-sm text-gray-700">
+                  ${product.price.toFixed(2)}
+                </TableCell>
+
+                <TableCell className="text-sm text-gray-700">
+                  {product.category || "-"}
+                </TableCell>
+
                 <TableCell>
-                  <span className={product.stock <= 5 ? "text-red-500" : ""}>
+                  <span
+                    className={`text-sm font-medium ${
+                      product.stock <= 5 ? "text-red-500" : "text-gray-800"
+                    }`}
+                  >
                     {product.stock}
                   </span>
                 </TableCell>
+
                 <TableCell className="text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>

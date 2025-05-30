@@ -1,6 +1,6 @@
 // hooks/productos/useProductActions.ts
 import { useToast } from "@/components/ui/use-toast";
-import { useCart } from "@/components/cart-provider";
+import { useCart } from "@/components/cart/cart-provider";
 import { useAuth } from "@/contexts/auth-context";
 import { Product } from "@/types/producto_admin";
 

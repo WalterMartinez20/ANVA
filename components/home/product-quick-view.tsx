@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { useCart } from "@/components/cart-provider";
+import { useCart } from "@/components/cart/cart-provider";
 import { toast } from "@/components/ui/use-toast";
 import { Product } from "@/types/producto_admin";
 

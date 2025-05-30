@@ -52,12 +52,11 @@ const ProductGallerySlider: React.FC<Props> = ({
       ? "aspect-video"
       : "aspect-[3/4]";
 
-  if (!images || sortedImages.length === 0) {
+  if (!Array.isArray(images) || images.length === 0) {
     return (
       <div className={cn("bg-gray-100", aspectClass, rounded && "rounded-md")}>
         <img
           src="/carteras/E1.png"
-          // * Ruta de imagen por defecto (por si se quiere usar): /carteras/cartera_por_defecto.png
           alt="Sin imagen"
           className="object-cover w-full h-full"
         />

@@ -9,6 +9,8 @@ Provee funciones como resetForm() y loadProduct(product).
 
 🔁 Encapsula la lógica del formulario para evitar usar múltiples useState.
 
+manejo del formulario
+
 */
 
 import { useState } from "react";

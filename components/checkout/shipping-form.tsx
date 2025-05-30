@@ -53,8 +53,17 @@ export function ShippingForm({
     setShippingInfo((prev) => ({ ...prev, [name]: value }));
   };
 
+  const renderFieldError = (field: string) =>
+    formErrors[field] && (
+      <p className="text-sm text-red-500 mt-1">{formErrors[field]}</p>
+    );
+
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
+    <form
+      onSubmit={onSubmit}
+      className="space-y-6 bg-white p-6 rounded-md border"
+    >
+      {/* Email */}
       <div className="space-y-2">
         <Label htmlFor="email">Correo electrónico</Label>
         <Input
@@ -65,11 +74,10 @@ export function ShippingForm({
           onChange={handleChange}
           required
         />
-        {formErrors.email && (
-          <p className="text-sm text-red-500 mt-1">{formErrors.email}</p>
-        )}
+        {renderFieldError("email")}
       </div>
 
+      {/* Nombre y Apellido */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="firstName">Nombre</Label>
@@ -93,6 +101,7 @@ export function ShippingForm({
         </div>
       </div>
 
+      {/* Dirección */}
       <div className="space-y-2">
         <Label htmlFor="address">Dirección</Label>
         <Input
@@ -104,7 +113,8 @@ export function ShippingForm({
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      {/* Ciudad y Estado */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="city">Ciudad</Label>
           <Input
@@ -127,7 +137,8 @@ export function ShippingForm({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      {/* Código Postal y País */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="zipCode">Código Postal</Label>
           <Input
@@ -145,21 +156,18 @@ export function ShippingForm({
             onValueChange={(value) => handleSelectChange("country", value)}
           >
             <SelectTrigger id="country">
-              <SelectValue placeholder="Seleccionar país" />
+              <SelectValue placeholder="Selecciona un país" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Estados Unidos">Estados Unidos</SelectItem>
-              <SelectItem value="México">México</SelectItem>
-              <SelectItem value="Colombia">Colombia</SelectItem>
-              <SelectItem value="España">España</SelectItem>
-              <SelectItem value="Argentina">Argentina</SelectItem>
-              <SelectItem value="Chile">Chile</SelectItem>
-              <SelectItem value="Perú">Perú</SelectItem>
+              <SelectItem value="El Salvador">El Salvador</SelectItem>
+              <SelectItem value="Guatemala">Guatemala</SelectItem>
+              {/* Puedes añadir más países según sea necesario */}
             </SelectContent>
           </Select>
         </div>
       </div>
 
+      {/* Teléfono */}
       <div className="space-y-2">
         <Label htmlFor="phone">Teléfono</Label>
         <Input
@@ -172,6 +180,7 @@ export function ShippingForm({
         />
       </div>
 
+      {/* Guardar info */}
       <div className="flex items-center space-x-2 pt-2">
         <Checkbox
           id="saveInfo"
@@ -183,6 +192,7 @@ export function ShippingForm({
         </Label>
       </div>
 
+      {/* Botón de envío */}
       <div className="pt-4">
         <Button type="submit" className="w-full" size="lg">
           <span>Continuar al envío</span>

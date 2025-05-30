@@ -21,27 +21,47 @@ model User {
   updatedAt DateTime   @updatedAt
   favorites Favorite[]
   orders    Order[]
+
+  // Nuevos campos para el perfil mejorado
+  avatar  String?
+  phone   String?
+  address String?
+  city    String?
+  state   String?
+  zipCode String?
+
+  // Estadísticas de usuario
+  lastLogin    DateTime?
+  totalOrders  Int       @default(0)
+  totalSpent   Float     @default(0)
+  reviewsCount Int       @default(0)
 }
 
 model Product {
-  id               Int               @id @default(autoincrement())
+  id               Int        @id @default(autoincrement())
   name             String
   description      String?
   price            Float
-  stock            Int               @default(0)
-  category         String?
-  width            Float?            // ancho (cm)
-  height           Float?            // alto (cm)
-  depth            Float?            // profundidad (cm)
-  strapDescription String?           // descripción del asa
-  colors           String?           // lista de colores disponibles.Ej: "negro, gris, beige"
-  materialInfo     String?           // texto sobre el material (sin cantidad)
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
+  stock            Int        @default(0)
+
+  categorySlug     String?
+  category         Category?  @relation(name: "MainCategory", fields: [categorySlug], references: [slug], onDelete: SetNull)
+
+  width            Float?     // ancho (cm)
+  height           Float?     // alto (cm)
+  depth            Float?     // profundidad (cm)
+  strapDescription String?    // descripción del asa
+  colors           String?    // lista de colores disponibles. Ej: "negro, gris, beige"
+  materialInfo     String?    // texto sobre el material (sin cantidad)
+
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
   images           ProductImage[]
   materials        ProductMaterial[]
   favorites        Favorite[]
   orderItems       OrderItem[]
+  reviews          Review[]
 }
 
 model ProductImage {
@@ -99,6 +119,9 @@ model Order {
   user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   items     OrderItem[]
   payments  Payment[]
+
+  // Relación con historial de estados
+  statusHistory OrderStatusHistory[] // ← relación inversa
 }
 
 model OrderItem {
@@ -121,6 +144,38 @@ model Payment {
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
   order     Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+model Review {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  productId Int
+  rating    Int // 1-5 estrellas
+  comment   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model OrderStatusHistory {
+  id        Int         @id @default(autoincrement())
+  orderId   Int
+  status    OrderStatus
+  notes     String?
+  createdAt DateTime    @default(now())
+  order     Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+model Category {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  slug        String    @unique
+  description String?
+
+  productsAsCategory Product[] @relation("MainCategory")
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 enum Role {

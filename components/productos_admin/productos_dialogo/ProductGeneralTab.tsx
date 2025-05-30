@@ -4,7 +4,6 @@ import React from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { ProductFormData } from "@/types/producto_admin";
 import {
   Select,
   SelectTrigger,
@@ -12,68 +11,56 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+import { useFormContext } from "react-hook-form";
+import { ProductFormSchema } from "@/lib/schemas/productSchema";
 
 interface ProductGeneralTabProps {
-  formData: ProductFormData;
-  setFormData: React.Dispatch<React.SetStateAction<ProductFormData>>;
+  categoryOptions: string[];
 }
 
-const categoryOptions = [
-  "Carteras",
-  "Bolsos",
-  "Morrales",
-  "Mochilas",
-  "Accesorios",
-];
-
 export const ProductGeneralTab: React.FC<ProductGeneralTabProps> = ({
-  formData,
-  setFormData,
+  categoryOptions,
 }) => {
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleCategoryChange = (value: string) => {
-    setFormData((prev) => ({ ...prev, category: value }));
-  };
+  const {
+    register,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useFormContext<ProductFormSchema>();
 
   return (
     <div className="space-y-4 py-4">
+      {/* Nombre */}
       <div className="grid grid-cols-4 items-center gap-4">
         <Label htmlFor="name" className="text-right">
           Nombre
         </Label>
         <Input
           id="name"
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-          className="col-span-3"
-          required
+          {...register("name")}
+          className={`col-span-3 ${errors.name ? "border-red-500" : ""}`}
         />
+        {errors.name && (
+          <p className="col-start-2 col-span-3 text-sm text-red-500">
+            {errors.name.message}
+          </p>
+        )}
       </div>
 
+      {/* Descripción */}
       <div className="grid grid-cols-4 items-start gap-4">
         <Label htmlFor="description" className="text-right pt-2">
           Descripción
         </Label>
         <Textarea
           id="description"
-          name="description"
-          value={formData.description ?? ""}
-          onChange={handleChange}
+          {...register("description")}
           className="col-span-3"
           rows={4}
         />
       </div>
 
+      {/* Precio */}
       <div className="grid grid-cols-4 items-center gap-4">
         <Label htmlFor="price" className="text-right">
           Precio
@@ -81,19 +68,18 @@ export const ProductGeneralTab: React.FC<ProductGeneralTabProps> = ({
         <Input
           id="price"
           type="number"
-          placeholder="Precio"
-          value={formData.price ?? ""}
-          onChange={(e) =>
-            setFormData((prev) => ({
-              ...prev,
-              price: e.target.value === "" ? null : parseFloat(e.target.value),
-            }))
-          }
-          className="col-span-3"
-          required
+          step="0.01"
+          {...register("price", { valueAsNumber: true })}
+          className={`col-span-3 ${errors.price ? "border-red-500" : ""}`}
         />
+        {errors.price && (
+          <p className="col-start-2 col-span-3 text-sm text-red-500">
+            {errors.price.message}
+          </p>
+        )}
       </div>
 
+      {/* Stock */}
       <div className="grid grid-cols-4 items-center gap-4">
         <Label htmlFor="stock" className="text-right">
           Stock
@@ -101,28 +87,22 @@ export const ProductGeneralTab: React.FC<ProductGeneralTabProps> = ({
         <Input
           id="stock"
           type="number"
-          placeholder="Stock"
-          value={formData.stock ?? ""}
-          onChange={(e) =>
-            setFormData((prev) => ({
-              ...prev,
-              stock: e.target.value === "" ? null : parseFloat(e.target.value),
-            }))
-          }
+          {...register("stock", { valueAsNumber: true })}
           className="col-span-3"
         />
       </div>
 
+      {/* Categoría */}
       <div className="grid grid-cols-4 items-center gap-4">
         <Label htmlFor="category" className="text-right">
           Categoría
         </Label>
         <div className="col-span-3">
           <Select
-            value={formData.category ?? ""}
-            onValueChange={handleCategoryChange}
+            value={watch("category") ?? ""}
+            onValueChange={(value) => setValue("category", value)}
           >
-            <SelectTrigger>
+            <SelectTrigger className={errors.category ? "border-red-500" : ""}>
               <SelectValue placeholder="Seleccionar categoría" />
             </SelectTrigger>
             <SelectContent>
@@ -133,83 +113,63 @@ export const ProductGeneralTab: React.FC<ProductGeneralTabProps> = ({
               ))}
             </SelectContent>
           </Select>
+          {errors.category && (
+            <p className="text-sm text-red-500 mt-1">
+              {errors.category.message}
+            </p>
+          )}
         </div>
       </div>
 
+      {/* Colores */}
       <div className="grid grid-cols-4 items-center gap-4">
         <Label htmlFor="colors" className="text-right">
           Colores disponibles
         </Label>
         <Input
           id="colors"
-          name="colors"
-          placeholder="Ej: negro, marrón, beige"
-          value={formData.colors?.join(", ") ?? ""}
+          placeholder="Ej: negro, beige"
+          value={watch("colors")?.join(", ") ?? ""}
           onChange={(e) =>
-            setFormData((prev) => ({
-              ...prev,
-              colors: e.target.value.split(",").map((c) => c.trim()),
-            }))
+            setValue(
+              "colors",
+              e.target.value.split(",").map((c) => c.trim())
+            )
           }
           className="col-span-3"
         />
       </div>
 
+      {/* Dimensiones */}
       <div className="grid grid-cols-4 items-center gap-4">
         <Label className="text-right">Dimensiones (cm)</Label>
         <div className="col-span-3 grid grid-cols-3 gap-2">
           <Input
             type="number"
             placeholder="Ancho"
-            value={formData.width ?? ""}
-            onChange={(e) =>
-              setFormData((prev) => ({
-                ...prev,
-                width:
-                  e.target.value === "" ? null : parseFloat(e.target.value),
-              }))
-            }
+            {...register("width", { valueAsNumber: true })}
           />
           <Input
             type="number"
             placeholder="Alto"
-            value={formData.height ?? ""}
-            onChange={(e) =>
-              setFormData((prev) => ({
-                ...prev,
-                height:
-                  e.target.value === "" ? null : parseFloat(e.target.value),
-              }))
-            }
+            {...register("height", { valueAsNumber: true })}
           />
           <Input
             type="number"
             placeholder="Prof."
-            value={formData.depth ?? ""}
-            onChange={(e) =>
-              setFormData((prev) => ({
-                ...prev,
-                depth:
-                  e.target.value === "" ? null : parseFloat(e.target.value),
-              }))
-            }
+            {...register("depth", { valueAsNumber: true })}
           />
         </div>
       </div>
 
+      {/* Descripción Asa */}
       <div className="grid grid-cols-4 items-start gap-4">
         <Label htmlFor="strapDescription" className="text-right pt-2">
           Descripción del Asa
         </Label>
         <Textarea
           id="strapDescription"
-          value={formData.strapDescription ?? ""}
-          onChange={(e) =>
-            setFormData((prev) => ({
-              ...prev,
-              strapDescription: e.target.value,
-            }))
-          }
+          {...register("strapDescription")}
           className="col-span-3"
           rows={2}
         />

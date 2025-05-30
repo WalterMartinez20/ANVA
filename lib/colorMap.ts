@@ -12,5 +12,8 @@ export const colorMap: Record<string, string> = {
   violeta: "#8A2BE2",
   celeste: "#87CEEB",
   beige: "#f5f5dc",
+  crema: "#F6F2E5",
+  nude: "#CF9C7B",
+  rojo_oscuro: "#8B0000",
   // TODO: agregar más colores personalizados
 };

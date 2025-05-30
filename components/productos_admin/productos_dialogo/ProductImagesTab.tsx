@@ -5,9 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
-import { Upload, X, Loader2 } from "lucide-react";
+import { Upload, X, Loader2, ImagePlus } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
-import { ProductImage } from "@/types/producto_admin";
 
 import {
   DndContext,
@@ -23,6 +22,8 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+
+import { ProductImage } from "@/types/producto_admin";
 
 interface Props {
   images: ProductImage[];
@@ -51,29 +52,30 @@ const SortableImageCard = ({
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
       <Card
-        className={`overflow-hidden ${
-          image.isMain ? "ring-2 ring-primary" : ""
+        className={`overflow-hidden group relative border ${
+          image.isMain
+            ? "border-primary ring-2 ring-primary"
+            : "hover:shadow-md"
         }`}
       >
-        <div className="aspect-square relative">
+        <div className="aspect-square bg-muted">
           <img
             src={image.url}
             alt={`Imagen ${index + 1}`}
             className="w-full h-full object-cover"
           />
-          <button
-            onClick={() => onRemove(index)}
-            className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 z-10"
-          >
-            <X className="h-4 w-4" />
-          </button>
         </div>
+        <button
+          onClick={() => onRemove(index)}
+          className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 z-10"
+        >
+          <X className="h-4 w-4" />
+        </button>
         <CardContent className="p-3">
           <Button
             type="button"
             variant={image.isMain ? "default" : "outline"}
-            size="sm"
-            className="w-full text-xs min-h-[2rem] flex justify-center whitespace-normal"
+            className="w-full px-3 py-1.5 text-xs leading-snug rounded-md whitespace-normal"
             onClick={() => onSetMain(index)}
             disabled={image.isMain}
           >
@@ -91,7 +93,10 @@ export const ProductImagesTab: React.FC<Props> = ({ images, setImages }) => {
   const [isUploading, setIsUploading] = useState(false);
 
   const handleAddUrl = () => {
-    if (!newUrl.trim()) return;
+    if (!newUrl.trim()) {
+      toast({ title: "Ingresa una URL válida de imagen." });
+      return;
+    }
 
     const isMain = images.length === 0;
     const newImage: ProductImage = {
@@ -118,7 +123,7 @@ export const ProductImagesTab: React.FC<Props> = ({ images, setImages }) => {
         url: blobUrl,
         isMain: images.length === 0 && i === 0,
         file,
-        position: images.length + i, // ✅ posición continua
+        position: images.length + i,
       });
     }
     setImages([...images, ...newImages]);
@@ -162,45 +167,50 @@ export const ProductImagesTab: React.FC<Props> = ({ images, setImages }) => {
   };
 
   return (
-    <div className="space-y-4 py-4">
-      <div>
-        <Label>Subir desde dispositivo</Label>
-        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-          <input
-            type="file"
-            ref={fileInputRef}
-            accept="image/*"
-            multiple
-            onChange={handleUpload}
-            className="hidden"
-          />
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={isUploading}
-            className="mx-auto flex items-center gap-2"
-          >
-            {isUploading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Upload className="h-4 w-4" />
-            )}
-            Seleccionar imágenes
-          </Button>
-        </div>
-      </div>
+    <div className="space-y-6">
+      <div className="space-y-4">
+        <Card>
+          <CardContent className="p-4 space-y-2">
+            <Label className="block mb-1">Subir desde dispositivo</Label>
+            <input
+              type="file"
+              ref={fileInputRef}
+              accept="image/*"
+              multiple
+              onChange={handleUpload}
+              className="hidden"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+              className="w-full"
+            >
+              {isUploading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Upload className="h-4 w-4 mr-2" />
+              )}
+              Seleccionar imágenes
+            </Button>
+          </CardContent>
+        </Card>
 
-      <div className="flex items-end gap-4">
-        <div className="flex-1">
-          <Label>Añadir por URL</Label>
-          <Input
-            placeholder="https://ejemplo.com/imagen.jpg"
-            value={newUrl}
-            onChange={(e) => setNewUrl(e.target.value)}
-          />
-        </div>
-        <Button onClick={handleAddUrl}>Añadir Imagen</Button>
+        <Card>
+          <CardContent className="p-4 space-y-2">
+            <Label className="block mb-1">Añadir por URL</Label>
+            <Input
+              placeholder="https://ejemplo.com/imagen.jpg"
+              value={newUrl}
+              onChange={(e) => setNewUrl(e.target.value)}
+            />
+            <Button onClick={handleAddUrl} className="w-full mt-2">
+              <ImagePlus className="h-4 w-4 mr-2" />
+              Añadir Imagen
+            </Button>
+          </CardContent>
+        </Card>
       </div>
 
       <DndContext
@@ -212,7 +222,7 @@ export const ProductImagesTab: React.FC<Props> = ({ images, setImages }) => {
           items={images.map((img) => img.id)}
           strategy={verticalListSortingStrategy}
         >
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {images.map((image, index) => (
               <SortableImageCard
                 key={image.id}
@@ -227,8 +237,8 @@ export const ProductImagesTab: React.FC<Props> = ({ images, setImages }) => {
       </DndContext>
 
       {images.length === 0 && (
-        <div className="text-center py-8 text-muted-foreground">
-          No hay imágenes. Añade al menos una imagen para el producto.
+        <div className="text-center py-8 text-destructive font-medium">
+          Debes añadir al menos una imagen para el producto.
         </div>
       )}
     </div>

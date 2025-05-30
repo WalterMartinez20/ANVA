@@ -2,75 +2,58 @@
 
 import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
-import ProductCard from "@/components/ProductCard";
-import ProductQuickView from "./product-quick-view";
-import { useToast } from "@/components/ui/use-toast";
-import { useAuth } from "@/contexts/auth-context";
-import { Product } from "@/types/producto_admin";
-import { useProductActions } from "@/hooks/productos/useProductActions";
 
-export default function ProductGrid() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [favorites, setFavorites] = useState<number[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+import ProductCard from "@/components/productos/ProductCard";
+import ProductQuickView from "./product-quick-view";
+
+import { Product } from "@/types/producto_admin";
+import { useFavorites } from "@/hooks/productos/useFavorites";
+
+interface ProductGridProps {
+  products?: Product[];
+  favorites?: number[];
+  onToggleFavorite?: (product: Product) => void;
+}
+
+export default function ProductGrid({
+  products: externalProducts,
+  favorites: externalFavorites,
+  onToggleFavorite,
+}: ProductGridProps) {
+  const [products, setProducts] = useState<Product[]>(externalProducts || []);
+  const [isLoading, setIsLoading] = useState(!externalProducts);
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(
     null
   );
 
-  const { isAuthenticated, isGuest } = useAuth();
-  const { toast } = useToast();
-  const { toggleFavoriteAndUpdate } = useProductActions();
+  const { favorites: internalFavorites, toggleFavorite: internalToggle } =
+    useFavorites();
+  const favorites = externalFavorites ?? internalFavorites;
+  const toggleFavorite = onToggleFavorite ?? internalToggle;
 
-  // 🚀 Fetch productos
+  // 🟢 Actualizar estado interno cuando cambien los props
   useEffect(() => {
+    setProducts(externalProducts || []);
+  }, [externalProducts]);
+
+  // Solo se ejecuta si no se pasan productos desde afuera (fallback general)
+  useEffect(() => {
+    if (externalProducts) return;
+
     const fetchProducts = async () => {
       try {
         const res = await fetch("/api/products");
         const data = await res.json();
         setProducts(data.products || []);
       } catch {
-        toast({
-          title: "Error",
-          description: "No se pudieron cargar los productos",
-          variant: "destructive",
-        });
+        // Silencioso, pero podrías mostrar un mensaje si quieres
       } finally {
         setIsLoading(false);
       }
     };
+
     fetchProducts();
-  }, []);
-
-  // ⭐️ Fetch favoritos
-  useEffect(() => {
-    const fetchFavorites = async () => {
-      if (!isAuthenticated || isGuest) return;
-      try {
-        const res = await fetch("/api/favorites");
-        const data = await res.json();
-        setFavorites(data.favorites?.map((f: any) => f.productId) || []);
-      } catch (err) {
-        console.error("Error al cargar favoritos:", err);
-      }
-    };
-    fetchFavorites();
-  }, [isAuthenticated, isGuest]);
-
-  // Agregar a favoritos
-  const handleToggleFavorite = (product: Product) => {
-    toggleFavoriteAndUpdate(
-      product,
-      favorites.includes(product.id),
-      (newStatus) => {
-        setFavorites((prev) =>
-          newStatus
-            ? [...prev, product.id]
-            : prev.filter((id) => id !== product.id)
-        );
-      },
-      () => {}
-    );
-  };
+  }, [externalProducts]);
 
   if (isLoading) {
     return (
@@ -101,7 +84,7 @@ export default function ProductGrid() {
             key={product.id}
             product={product}
             isFavorite={favorites.includes(product.id)}
-            onToggleFavorite={() => handleToggleFavorite(product)}
+            onToggleFavorite={() => toggleFavorite(product)}
           />
         ))}
       </div>

@@ -5,11 +5,11 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Heart, ShoppingCart, Eye, Loader2 } from "lucide-react";
-import { useCart } from "./cart-provider";
+import { useCart } from "./cart/cart-provider";
 import { useAuth } from "@/contexts/auth-context";
 import { toast } from "@/components/ui/use-toast";
 import Link from "next/link";
-import ProductQuickView from "./product-quick-view";
+import ProductQuickView from "@/components/home/product-quick-view";
 import { formatPrice } from "@/lib/utils";
 
 interface ProductImage {

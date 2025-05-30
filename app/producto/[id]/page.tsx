@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import Breadcrumb from "@/components/breadcrumb";
+import Breadcrumb from "@/components/productos/categorias/breadcrumb";
 import { toast } from "@/components/ui/use-toast";
 import { useParams } from "next/navigation";
 
@@ -19,19 +19,14 @@ import PaymentMethods from "@/components/productos/PaymentMethods";
 
 import { useProductDetails } from "@/hooks/productos/useProductDetails";
 import { useProductActions } from "@/hooks/productos/useProductActions";
-import { useAuth } from "@/contexts/auth-context";
+import { useFavorites } from "@/hooks/productos/useFavorites";
 
 export default function ProductPage() {
   const params = useParams();
   const productId = params?.id as string;
-  const [quantity, setQuantity] = useState(1);
-  const [isFavorite, setIsFavorite] = useState(false);
-  const [checkingFavorite, setCheckingFavorite] = useState(true);
-  const [isAddingToFavorites, setIsAddingToFavorites] = useState(false);
-  const [isSharing, setIsSharing] = useState(false);
 
-  const { isAuthenticated, isGuest } = useAuth();
-  const { addToCartFromDetails, toggleFavoriteAndUpdate } = useProductActions();
+  const [quantity, setQuantity] = useState(1);
+  const [isSharing, setIsSharing] = useState(false);
 
   const {
     product,
@@ -41,29 +36,10 @@ export default function ProductPage() {
     setSelectedColor,
   } = useProductDetails(productId);
 
-  useEffect(() => {
-    const checkIfFavorite = async () => {
-      if (!product || !isAuthenticated || isGuest) {
-        setCheckingFavorite(false);
-        return;
-      }
+  const { addToCartFromDetails } = useProductActions();
+  const { favorites, toggleFavorite } = useFavorites();
 
-      try {
-        const res = await fetch("/api/favorites");
-        const data = await res.json();
-        const isInFavorites = data.favorites?.some(
-          (fav: any) => fav.productId === product.id
-        );
-        setIsFavorite(!!isInFavorites);
-      } catch (err) {
-        console.error("Error al verificar favoritos:", err);
-      } finally {
-        setCheckingFavorite(false);
-      }
-    };
-
-    checkIfFavorite();
-  }, [product, isAuthenticated, isGuest]);
+  const isFavorite = product ? favorites.includes(product.id) : false;
 
   const increaseQuantity = () => {
     if (!product) return;
@@ -117,7 +93,7 @@ export default function ProductPage() {
         { label: product?.name || "Cargando..." },
       ];
 
-  if (isLoading || checkingFavorite) {
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-[50vh]">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -155,11 +131,8 @@ export default function ProductPage() {
           {/* Info a la derecha */}
           <div className="lg:w-3/5">
             <div className="space-y-6">
-              {/* Título, categoría, precio y rating */}
-              {/* Solo pasamos product porque en info esta desestructurado todo desde product, esto para no repetir props y que quede más limpio. */}
               <Info product={product} />
 
-              {/* Color y cantidad juntos */}
               <div className="space-y-4">
                 <ColorSelector
                   colors={availableColors}
@@ -174,40 +147,37 @@ export default function ProductPage() {
                 />
               </div>
 
-              {/* Botones de acción: agregar + favorito */}
               <Actions
-                onAddToCart={() =>
+                onAddToCart={() => {
                   addToCartFromDetails(
                     product,
                     selectedColor,
                     availableColors,
                     quantity
-                  )
-                }
-                onToggleFavorite={() =>
-                  toggleFavoriteAndUpdate(
-                    product,
-                    isFavorite,
-                    setIsFavorite,
-                    setIsAddingToFavorites
-                  )
-                }
+                  );
+                  setQuantity(1);
+                  console.log("Add to cart called with quantity:", quantity);
+                }}
+                onToggleFavorite={() => toggleFavorite(product)}
                 onShare={handleShare}
                 isFavorite={isFavorite}
                 isSharing={isSharing}
-                isAddingToFavorites={isAddingToFavorites}
                 disabled={product.stock <= 0}
               />
 
-              {/* Métodos de pago y entrega, agrupados visualmente */}
-              <div className="mt-6 space-y-4 border rounded-md p-4 bg-gray-50">
-                <div>
-                  <h4 className="text-sm font-medium mb-1">Métodos de pago</h4>
+              <div className="mt-6 rounded-lg border border-primary/30 bg-white shadow-md">
+                {/* Métodos de pago */}
+                <div className="border-b border-primary/10 p-4 md:p-5">
+                  <h4 className="text-sm font-semibold text-gray-800 mb-2 flex items-center gap-2">
+                    💳 Métodos de pago
+                  </h4>
                   <PaymentMethods />
                 </div>
-                <div>
-                  <h4 className="text-sm font-medium mb-1">
-                    Opciones de entrega
+
+                {/* Opciones de entrega */}
+                <div className="p-4 md:p-5">
+                  <h4 className="text-sm font-semibold text-gray-800 mb-2 flex items-center gap-2">
+                    🚚 Opciones de entrega
                   </h4>
                   <DeliveryOptions />
                 </div>
@@ -216,7 +186,6 @@ export default function ProductPage() {
           </div>
         </div>
 
-        {/* Tabs con descripción, materiales, pago/envío, reseñas */}
         <ProductTabs
           description={product.description}
           materials={product.materials}
@@ -227,71 +196,7 @@ export default function ProductPage() {
           materialInfo={product.materialInfo}
         />
 
-        {/* Productos relacionados */}
-        <RelatedProducts
-          products={[
-            {
-              id: 1,
-              name: "Producto relacionado 1",
-              price: 19.99,
-              image: "/carteras/A4.png",
-            },
-            {
-              id: 2,
-              name: "Producto relacionado 2",
-              price: 19.99,
-              image: "/carteras/B1.png",
-            },
-            {
-              id: 3,
-              name: "Producto relacionado 3",
-              price: 19.99,
-              image: "/carteras/C3.png",
-            },
-            {
-              id: 4,
-              name: "Producto relacionado 4",
-              price: 19.99,
-              image: "/carteras/D1.png",
-            },
-            {
-              id: 5,
-              name: "Producto relacionado 5",
-              price: 19.99,
-              image: "/carteras/A4.png",
-            },
-            {
-              id: 6,
-              name: "Producto relacionado 6",
-              price: 19.99,
-              image: "/carteras/C3.png",
-            },
-            {
-              id: 7,
-              name: "Producto relacionado 7",
-              price: 19.99,
-              image: "/carteras/B1.png",
-            },
-            {
-              id: 8,
-              name: "Producto relacionado 8",
-              price: 19.99,
-              image: "/carteras/C3.png",
-            },
-            {
-              id: 9,
-              name: "Producto relacionado 9",
-              price: 19.99,
-              image: "/carteras/D1.png",
-            },
-            {
-              id: 10,
-              name: "Producto relacionado 10",
-              price: 19.99,
-              image: "/carteras/A4.png",
-            },
-          ]}
-        />
+        <RelatedProducts />
       </div>
     </>
   );

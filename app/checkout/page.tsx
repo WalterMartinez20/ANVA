@@ -4,34 +4,17 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ShoppingBag, Shield, Truck, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "@/components/ui/use-toast";
+import { useCart } from "@/components/cart/cart-provider";
+
 import { OrderSummary } from "@/components/checkout/order-summary";
 import { ShippingForm } from "@/components/checkout/shipping-form";
+import { ShippingOptions } from "@/components/checkout/shipping-options";
 import { PaymentMethods } from "@/components/checkout/payment-methods";
 import { TrustIndicators } from "@/components/checkout/trust-indicators";
-import { ShippingOptions } from "@/components/checkout/shipping-options";
-
-// Datos de ejemplo para simular productos en el carrito
-const cartItems = [
-  {
-    id: 1,
-    name: "Cartera de Cuero Premium",
-    price: 89.99,
-    quantity: 1,
-    image: "/placeholder.svg?height=80&width=80",
-    options: "Color: Negro, Tamaño: Mediano",
-  },
-  {
-    id: 2,
-    name: "Billetera Minimalista",
-    price: 39.99,
-    quantity: 2,
-    image: "/placeholder.svg?height=80&width=80",
-    options: "Color: Marrón, Personalización: Iniciales",
-  },
-];
+import { ProgressIndicator } from "@/components/checkout/ProgressIndicator";
+import { SuccessMessage } from "@/components/checkout/SuccessMessage";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -47,12 +30,13 @@ export default function CheckoutPage() {
     city: "",
     state: "",
     zipCode: "",
-    country: "Estados Unidos",
+    country: "El Salvador",
   });
   const [shippingMethod, setShippingMethod] = useState("standard");
   const [paymentMethod, setPaymentMethod] = useState("credit-card");
   const [saveInfo, setSaveInfo] = useState(false);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const { items: cartItems } = useCart();
 
   // Calcular totales
   const subtotal = cartItems.reduce(
@@ -117,63 +101,7 @@ export default function CheckoutPage() {
   };
 
   if (orderProcessed) {
-    return (
-      <div className="container max-w-4xl mx-auto px-4 py-12">
-        <div className="text-center space-y-6 max-w-2xl mx-auto">
-          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-10 w-10 text-green-600"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
-          </div>
-          <h1 className="text-3xl font-bold">¡Gracias por tu compra!</h1>
-          <p className="text-gray-600">
-            Tu pedido #12345 ha sido procesado correctamente. Hemos enviado un
-            correo electrónico con los detalles de tu compra.
-          </p>
-          <div className="bg-gray-50 p-6 rounded-lg">
-            <h2 className="font-semibold mb-2">Resumen del pedido</h2>
-            <p className="text-sm text-gray-600 mb-4">
-              Fecha de compra: {new Date().toLocaleDateString()}
-            </p>
-            <div className="space-y-2">
-              {cartItems.map((item) => (
-                <div key={item.id} className="flex justify-between">
-                  <span>
-                    {item.quantity}x {item.name}
-                  </span>
-                  <span>${(item.price * item.quantity).toFixed(2)}</span>
-                </div>
-              ))}
-              <Separator />
-              <div className="flex justify-between font-bold">
-                <span>Total</span>
-                <span>${total.toFixed(2)}</span>
-              </div>
-            </div>
-          </div>
-          <div className="flex gap-4 justify-center">
-            <Button onClick={() => router.push("/")}>Volver a la tienda</Button>
-            <Button
-              variant="outline"
-              onClick={() => router.push("/account/orders")}
-            >
-              Ver mis pedidos
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
+    return <SuccessMessage total={total} />;
   }
 
   return (
@@ -182,71 +110,7 @@ export default function CheckoutPage() {
         <h1 className="text-3xl font-bold mb-6">Checkout</h1>
 
         {/* Progress Indicator */}
-        <div className="flex items-center justify-between max-w-md mb-8">
-          <div className="flex flex-col items-center">
-            <div
-              className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                currentStep === "information" ||
-                currentStep === "shipping" ||
-                currentStep === "payment"
-                  ? "bg-primary text-white"
-                  : "bg-gray-200"
-              }`}
-            >
-              1
-            </div>
-            <span className="text-xs mt-1">Información</span>
-          </div>
-          <div className="flex-1 h-1 mx-2 bg-gray-200">
-            <div
-              className={`h-full ${
-                currentStep === "shipping" || currentStep === "payment"
-                  ? "bg-primary"
-                  : "bg-gray-200"
-              }`}
-              style={{ width: currentStep === "information" ? "0%" : "100%" }}
-            ></div>
-          </div>
-          <div className="flex flex-col items-center">
-            <div
-              className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                currentStep === "shipping" || currentStep === "payment"
-                  ? "bg-primary text-white"
-                  : "bg-gray-200"
-              }`}
-            >
-              2
-            </div>
-            <span className="text-xs mt-1">Envío</span>
-          </div>
-          <div className="flex-1 h-1 mx-2 bg-gray-200">
-            <div
-              className={`h-full ${
-                currentStep === "payment" ? "bg-primary" : "bg-gray-200"
-              }`}
-              style={{
-                width:
-                  currentStep === "shipping" || currentStep === "payment"
-                    ? currentStep === "payment"
-                      ? "100%"
-                      : "0%"
-                    : "0%",
-              }}
-            ></div>
-          </div>
-          <div className="flex flex-col items-center">
-            <div
-              className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                currentStep === "payment"
-                  ? "bg-primary text-white"
-                  : "bg-gray-200"
-              }`}
-            >
-              3
-            </div>
-            <span className="text-xs mt-1">Pago</span>
-          </div>
-        </div>
+        <ProgressIndicator currentStep={currentStep} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">

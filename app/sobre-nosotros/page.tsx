@@ -10,7 +10,7 @@ export default function SobreNosotrosPage() {
         <div className="mb-12">
           <div className="aspect-video rounded-lg overflow-hidden mb-8">
             <img
-              src="/placeholder.svg?height=400&width=800&text=Nuestra+Historia"
+              src="/logos/logo_principal_letras.png"
               alt="Nuestra Historia"
               className="w-full h-full object-cover"
             />
@@ -18,17 +18,11 @@ export default function SobreNosotrosPage() {
 
           <h2 className="text-2xl font-semibold mb-4">Nuestra Historia</h2>
           <p className="text-gray-700 mb-4">
-            Fundada en 2010, Carteras Artesanales nació de la pasión por la
-            artesanía y el diseño de accesorios únicos. Lo que comenzó como un
-            pequeño taller familiar se ha convertido en una marca reconocida por
-            la calidad y originalidad de sus productos.
-          </p>
-          <p className="text-gray-700 mb-4">
-            Cada uno de nuestros productos es elaborado con dedicación y
-            atención al detalle, utilizando técnicas tradicionales combinadas
-            con diseños contemporáneos. Nos enorgullece ofrecer piezas que no
-            solo son funcionales, sino también expresiones artísticas que
-            reflejan la rica tradición artesanal de nuestra región.
+            ANVA nace de nuestro amor por la moda, la belleza y el arte de lo
+            hecho a mano. Creando carteras y accesorios únicos que cuentan
+            historias, piezas con alma para mujeres auténticas, porque nuestros
+            accesorios no son sólo complementos sino herramientas de confianza y
+            autoexpresión
           </p>
         </div>
 
@@ -121,18 +115,31 @@ export default function SobreNosotrosPage() {
           </div>
         </div>
 
-        <div className="mb-12">
+        <div className="mb-12 text-center">
+          <h2 className="text-2xl font-semibold mb-6">Nuestro Equipo</h2>
+          <div className="flex flex-col items-center">
+            <div className="max-w-[150px] rounded-full overflow-hidden mb-4">
+              <img
+                src="/bisuteria/FON27.png"
+                alt="Fundadora"
+                className="w-full h-full object-cover rounded-full"
+              />
+            </div>
+            <h3 className="font-semibold">Patricia Vargas</h3>
+            <p className="text-sm text-gray-600">Fundadora</p>
+          </div>
+        </div>
+
+        {/* codigo anterior */}
+        {/* <div className="mb-12">
           <h2 className="text-2xl font-semibold mb-6">Nuestro Equipo</h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {[
-              {
-                name: "María González",
-                role: "Fundadora y Directora Creativa",
-              },
-              { name: "Carlos Rodríguez", role: "Maestro Artesano" },
-              { name: "Ana Martínez", role: "Diseñadora" },
-              { name: "Juan Pérez", role: "Gerente de Producción" },
+              { name: "...", role: "Fundadora" },
+              // { name: "Carlos Rodríguez", role: "Maestro Artesano" },
+              // { name: "Ana Martínez", role: "Diseñadora" },
+              // { name: "Juan Pérez", role: "Gerente de Producción" },
             ].map((member, index) => (
               <div key={index} className="text-center">
                 <div className="aspect-square rounded-full overflow-hidden mb-4 mx-auto max-w-[150px]">
@@ -149,8 +156,7 @@ export default function SobreNosotrosPage() {
               </div>
             ))}
           </div>
-        </div>
-
+        </div> */}
         <div>
           <h2 className="text-2xl font-semibold mb-6">Nuestra Ubicación</h2>
 
@@ -158,7 +164,7 @@ export default function SobreNosotrosPage() {
             <div>
               <div className="aspect-square rounded-lg overflow-hidden">
                 <img
-                  src="/placeholder.svg?height=400&width=400&text=Mapa"
+                  src="/logos/logo_principal_letras.png"
                   alt="Ubicación de nuestra tienda"
                   className="w-full h-full object-cover"
                 />

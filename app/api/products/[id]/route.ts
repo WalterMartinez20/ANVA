@@ -27,6 +27,7 @@ export async function GET(
       where: { id: Number(params.id) },
       include: {
         images: true,
+        category: true, // ✅ incluir categoría
         materials: {
           include: { material: true },
         },
@@ -40,7 +41,12 @@ export async function GET(
       );
     }
 
-    return NextResponse.json({ product });
+    return NextResponse.json({
+      product: {
+        ...product,
+        category: product.category?.name ?? "", // ✅ usar el nombre legible
+      },
+    });
   } catch (error) {
     console.error("Error al obtener producto:", error);
     return NextResponse.json(
@@ -103,7 +109,11 @@ export async function PUT(
         description,
         price: parseFloat(price),
         stock: stock ?? existingProduct.stock,
-        category,
+        categorySlug: category
+          ? (
+              await prisma.category.findFirst({ where: { name: category } })
+            )?.slug ?? null
+          : existingProduct.categorySlug,
         colors,
         width,
         height,
@@ -150,15 +160,22 @@ export async function PUT(
 
       await prisma.$transaction(actions);
     }
+
     const updatedProduct = await prisma.product.findUnique({
       where: { id: productId },
       include: {
         images: true,
+        category: true, // ✅ importante
         materials: { include: { material: true } },
       },
     });
 
-    return NextResponse.json({ product: updatedProduct });
+    return NextResponse.json({
+      product: {
+        ...updatedProduct,
+        category: updatedProduct?.category?.name ?? "", // ✅ incluir nombre de categoría
+      },
+    });
   } catch (error) {
     console.error("Error al actualizar producto:", error);
     return NextResponse.json(

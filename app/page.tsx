@@ -1,13 +1,17 @@
 import ProductGrid from "@/components/home/product-grid";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import HeroSlider from "@/components/home/hero-slider";
 import WhyChooseUs from "@/components/home/why-choose-us";
 import MainCategories from "@/components/home/main-categories";
+import SocialPanel from "@/components/home/SocialPanel";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
   return (
-    <div>
+    <>
+      {/* Redes sociales */}
+      <SocialPanel />
+
       {/* Hero Slider */}
       <div className="container mx-auto px-4 py-8 bg-gray-100">
         <HeroSlider />
@@ -32,14 +36,16 @@ export default function Home() {
           <p className="text-center text-gray-500 mb-12">
             Explora todo nuestro catálogo de productos artesanales
           </p>
+
           <ProductGrid />
+          {/* Botón para ver todos los productos */}
           <div className="text-center mt-12">
             <Button size="lg" asChild>
-              <Link href="/productos">Ver más productos</Link>
+              <Link href="/categoria/todos">Ver más productos</Link>
             </Button>
           </div>
         </div>
       </section>
-    </div>
+    </>
   );
 }

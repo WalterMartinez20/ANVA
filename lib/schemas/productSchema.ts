@@ -1,3 +1,4 @@
+// * Aqui van las validaciones de los productos
 import { z } from "zod";
 
 export const productSchema = z.object({

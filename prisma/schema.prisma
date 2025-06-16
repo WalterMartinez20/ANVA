@@ -21,20 +21,20 @@ model User {
   updatedAt DateTime   @updatedAt
   favorites Favorite[]
   orders    Order[]
+  isActive Boolean @default(true)
 
   // Nuevos campos para el perfil mejorado
   avatar  String?
   phone   String?
   address String?
-  city    String?
-  state   String?
-  zipCode String?
 
   // Estadísticas de usuario
   lastLogin    DateTime?
   totalOrders  Int       @default(0)
   totalSpent   Float     @default(0)
   reviewsCount Int       @default(0)
+
+  addresses Address[]
 }
 
 model Product {
@@ -113,12 +113,20 @@ model Order {
   total     Float
   address   String? // Dirección de envío
   phone     String? // Teléfono de contacto
-  notes     String? // Notas adicionales
+  // notes     String? // Notas adicionales (por el momento no se usa)
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
   user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   items     OrderItem[]
   payments  Payment[]
+  shippingMethod String?  // "standard", "priority", "express"
+  paymentMethod  String?  // "credit-card", etc.
+  customerName   String? //si el usuario cambia su nombre o email después de hacer el pedido
+  customerEmail String?
+
+  trackingNumber String? // Número de seguimiento del pedido provisto por la empresa transportista
+  carrier String? // Nombre de la empresa transportista que realizará la entrega
+  estimatedDeliveryDate DateTime? // Fecha estimada en la que se espera que el pedido sea entregado al cliente
 
   // Relación con historial de estados
   statusHistory OrderStatusHistory[] // ← relación inversa
@@ -178,6 +186,17 @@ model Category {
   updatedAt   DateTime  @updatedAt
 }
 
+model Address {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  label     String   // Ej: "Casa", "Oficina"
+  fullText  String   // Dirección completa
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 enum Role {
   ADMIN
   USER
@@ -205,4 +224,6 @@ enum PaymentStatus {
   COMPLETED
   FAILED
   REFUNDED
+  CANCELLED
+  ON_HOLD
 }

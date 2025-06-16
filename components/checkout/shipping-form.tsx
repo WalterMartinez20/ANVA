@@ -1,30 +1,17 @@
 "use client";
 
-import type React from "react";
-
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { ChevronRight } from "lucide-react";
+import { useAuth } from "@/contexts/auth-context";
+import { formatPhoneNumber } from "@/lib/utils";
 
 interface ShippingInfo {
-  firstName: string;
-  lastName: string;
-  email: string;
   phone: string;
   address: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  country: string;
 }
 
 interface ShippingFormProps {
@@ -34,6 +21,8 @@ interface ShippingFormProps {
   saveInfo: boolean;
   setSaveInfo: React.Dispatch<React.SetStateAction<boolean>>;
   formErrors: Record<string, string>;
+  shippingMethod: string;
+  paymentMethod: string;
 }
 
 export function ShippingForm({
@@ -43,14 +32,46 @@ export function ShippingForm({
   saveInfo,
   setSaveInfo,
   formErrors,
+  shippingMethod,
+  paymentMethod,
 }: ShippingFormProps) {
+  const { user } = useAuth();
+
+  // Cargar datos guardados al montar
+  useEffect(() => {
+    const saved = localStorage.getItem("savedShippingInfo");
+
+    if (saved) {
+      setShippingInfo(JSON.parse(saved));
+      setSaveInfo(true);
+    } else if (user?.address || user?.phone) {
+      setShippingInfo({
+        address: user.address || "",
+        phone: user.phone || "",
+      });
+    }
+  }, [user, setShippingInfo, setSaveInfo]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setShippingInfo((prev) => ({ ...prev, [name]: value }));
+    const formattedValue = name === "phone" ? formatPhoneNumber(value) : value;
+    setShippingInfo((prev) => ({ ...prev, [name]: formattedValue }));
   };
 
-  const handleSelectChange = (name: string, value: string) => {
-    setShippingInfo((prev) => ({ ...prev, [name]: value }));
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (saveInfo) {
+      localStorage.setItem("savedShippingInfo", JSON.stringify(shippingInfo));
+      localStorage.setItem("savedShippingMethod", shippingMethod);
+      localStorage.setItem("savedPaymentMethod", paymentMethod);
+    } else {
+      localStorage.removeItem("savedShippingInfo");
+      localStorage.removeItem("savedShippingMethod");
+      localStorage.removeItem("savedPaymentMethod");
+    }
+
+    onSubmit(e);
   };
 
   const renderFieldError = (field: string) =>
@@ -60,43 +81,32 @@ export function ShippingForm({
 
   return (
     <form
-      onSubmit={onSubmit}
+      onSubmit={handleSubmit}
       className="space-y-6 bg-white p-6 rounded-md border"
     >
-      {/* Email */}
-      <div className="space-y-2">
-        <Label htmlFor="email">Correo electrónico</Label>
-        <Input
-          id="email"
-          name="email"
-          type="email"
-          value={shippingInfo.email}
-          onChange={handleChange}
-          required
-        />
-        {renderFieldError("email")}
-      </div>
-
-      {/* Nombre y Apellido */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Datos del usuario (no editables) */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="space-y-2">
           <Label htmlFor="firstName">Nombre</Label>
-          <Input
-            id="firstName"
-            name="firstName"
-            value={shippingInfo.firstName}
-            onChange={handleChange}
-            required
-          />
+          <Input id="firstName" value={user?.nombres || ""} disabled readOnly />
         </div>
         <div className="space-y-2">
           <Label htmlFor="lastName">Apellido</Label>
           <Input
             id="lastName"
-            name="lastName"
-            value={shippingInfo.lastName}
-            onChange={handleChange}
-            required
+            value={user?.apellidos || ""}
+            disabled
+            readOnly
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="email">Correo</Label>
+          <Input
+            id="email"
+            type="email"
+            value={user?.email || ""}
+            disabled
+            readOnly
           />
         </div>
       </div>
@@ -107,64 +117,11 @@ export function ShippingForm({
         <Input
           id="address"
           name="address"
-          value={shippingInfo.address}
-          onChange={handleChange}
-          required
+          value={user?.address || ""}
+          disabled
+          readOnly
         />
-      </div>
-
-      {/* Ciudad y Estado */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="city">Ciudad</Label>
-          <Input
-            id="city"
-            name="city"
-            value={shippingInfo.city}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="state">Estado/Provincia</Label>
-          <Input
-            id="state"
-            name="state"
-            value={shippingInfo.state}
-            onChange={handleChange}
-            required
-          />
-        </div>
-      </div>
-
-      {/* Código Postal y País */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="zipCode">Código Postal</Label>
-          <Input
-            id="zipCode"
-            name="zipCode"
-            value={shippingInfo.zipCode}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="country">País</Label>
-          <Select
-            value={shippingInfo.country}
-            onValueChange={(value) => handleSelectChange("country", value)}
-          >
-            <SelectTrigger id="country">
-              <SelectValue placeholder="Selecciona un país" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="El Salvador">El Salvador</SelectItem>
-              <SelectItem value="Guatemala">Guatemala</SelectItem>
-              {/* Puedes añadir más países según sea necesario */}
-            </SelectContent>
-          </Select>
-        </div>
+        {renderFieldError("address")}
       </div>
 
       {/* Teléfono */}
@@ -174,14 +131,15 @@ export function ShippingForm({
           id="phone"
           name="phone"
           type="tel"
-          value={shippingInfo.phone}
-          onChange={handleChange}
-          required
+          value={formatPhoneNumber(user?.phone || "")}
+          disabled
+          readOnly
         />
+        {renderFieldError("phone")}
       </div>
 
       {/* Guardar info */}
-      <div className="flex items-center space-x-2 pt-2">
+      {/* <div className="flex items-center space-x-2 pt-2">
         <Checkbox
           id="saveInfo"
           checked={saveInfo}
@@ -190,7 +148,7 @@ export function ShippingForm({
         <Label htmlFor="saveInfo" className="text-sm font-normal">
           Guardar esta información para la próxima compra
         </Label>
-      </div>
+      </div> */}
 
       {/* Botón de envío */}
       <div className="pt-4">

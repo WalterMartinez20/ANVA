@@ -3,6 +3,7 @@ import HeroSlider from "@/components/home/hero-slider";
 import WhyChooseUs from "@/components/home/why-choose-us";
 import MainCategories from "@/components/home/main-categories";
 import SocialPanel from "@/components/home/SocialPanel";
+import FeaturedProducts from "@/components/productos/featured-products";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 

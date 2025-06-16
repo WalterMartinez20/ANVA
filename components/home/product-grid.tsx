@@ -85,6 +85,7 @@ export default function ProductGrid({
             product={product}
             isFavorite={favorites.includes(product.id)}
             onToggleFavorite={() => toggleFavorite(product)}
+            outOfStock={product.stock <= 0}
           />
         ))}
       </div>

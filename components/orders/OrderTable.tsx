@@ -13,8 +13,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Eye, XCircle, Clock } from "lucide-react";
 import { formatDate } from "@/lib/utils";
-import type { Order } from "@/types/pedido";
-import OrderStatusBadge from "./StatusBadge";
+import type { Order } from "@/types/order";
+import StatusBadge from "./StatusBadge";
 import { Card, CardContent } from "@/components/ui/card";
 
 interface OrderTableProps {
@@ -70,7 +70,7 @@ export default function OrderTable({
                   {formatDate(order.createdAt)}
                 </TableCell>
                 <TableCell>
-                  <OrderStatusBadge status={order.status} />
+                  <StatusBadge status={order.status} context="order" />
                 </TableCell>
                 <TableCell className="text-gray-800">
                   ${order.total.toFixed(2)}

@@ -1,42 +1,56 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ShoppingBag, Shield, Truck, Clock } from "lucide-react";
+import { ShoppingBag, Shield, Store, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "@/components/ui/use-toast";
 import { useCart } from "@/components/cart/cart-provider";
+import { useAuth } from "@/contexts/auth-context";
+import { formatPhoneNumber } from "@/lib/utils";
 
 import { OrderSummary } from "@/components/checkout/order-summary";
 import { ShippingForm } from "@/components/checkout/shipping-form";
 import { ShippingOptions } from "@/components/checkout/shipping-options";
 import { PaymentMethods } from "@/components/checkout/payment-methods";
-import { TrustIndicators } from "@/components/checkout/trust-indicators";
 import { ProgressIndicator } from "@/components/checkout/ProgressIndicator";
 import { SuccessMessage } from "@/components/checkout/SuccessMessage";
+import { TrustIndicators } from "@/components/checkout/trust-indicators";
+
+import { OrderItemResumen } from "@/types/order";
+import { useStockCheck } from "@/hooks/productos/useStockCheck";
 
 export default function CheckoutPage() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState("information");
-  const [orderProcessed, setOrderProcessed] = useState(false);
+  const [orderCreated, setOrderCreated] = useState(null);
   const [loading, setLoading] = useState(false);
   const [shippingInfo, setShippingInfo] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
     address: "",
-    city: "",
-    state: "",
-    zipCode: "",
-    country: "El Salvador",
+    phone: "",
   });
   const [shippingMethod, setShippingMethod] = useState("standard");
-  const [paymentMethod, setPaymentMethod] = useState("credit-card");
+  const [paymentMethod, setPaymentMethod] = useState("bank-transfer");
   const [saveInfo, setSaveInfo] = useState(false);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const { items: cartItems } = useCart();
+  const { user } = useAuth();
+  const { clearCart } = useCart();
+  const { checkStock } = useStockCheck();
+
+  useEffect(() => {
+    const savedInfo = localStorage.getItem("savedShippingInfo");
+    const savedMethod = localStorage.getItem("savedShippingMethod");
+    const savedPayment = localStorage.getItem("savedPaymentMethod");
+
+    if (savedInfo) {
+      setShippingInfo(JSON.parse(savedInfo));
+      setSaveInfo(true);
+    }
+    if (savedMethod) setShippingMethod(savedMethod);
+    if (savedPayment) setPaymentMethod(savedPayment);
+  }, []);
 
   // Calcular totales
   const subtotal = cartItems.reduce(
@@ -49,22 +63,15 @@ export default function CheckoutPage() {
       : shippingMethod === "priority"
       ? 8.99
       : 0;
-  const tax = subtotal * 0.07; // 7% de impuesto
-  const total = subtotal + shipping + tax;
+
+  const total = subtotal + shipping;
 
   const handleInformationSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const errors: Record<string, string> = {};
-    if (!shippingInfo.firstName) errors.firstName = "Nombre requerido";
-    if (!shippingInfo.lastName) errors.lastName = "Apellido requerido";
-    if (!shippingInfo.email || !/\S+@\S+\.\S+/.test(shippingInfo.email))
-      errors.email = "Correo inválido";
     if (!shippingInfo.phone) errors.phone = "Teléfono requerido";
     if (!shippingInfo.address) errors.address = "Dirección requerida";
-    if (!shippingInfo.city) errors.city = "Ciudad requerida";
-    if (!shippingInfo.state) errors.state = "Estado requerido";
-    if (!shippingInfo.zipCode) errors.zipCode = "Código postal requerido";
 
     if (Object.keys(errors).length > 0) {
       setFormErrors(errors);
@@ -85,23 +92,77 @@ export default function CheckoutPage() {
     setCurrentStep("payment");
   };
 
-  const handlePaymentSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handlePaymentSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
 
-    // Simular procesamiento de pedido
-    setTimeout(() => {
-      setLoading(false);
-      setOrderProcessed(true);
+    const minimalCartItems = cartItems.map((item) => ({
+      id: item.id,
+      quantity: item.quantity,
+      price: item.price,
+    }));
+
+    const stockResult = await checkStock(minimalCartItems);
+
+    if (!stockResult.ok) {
       toast({
-        title: "¡Pedido realizado con éxito!",
-        description: "Recibirás un correo con los detalles de tu compra.",
+        title: "Stock insuficiente",
+        description: stockResult.error,
+        variant: "destructive",
       });
-    }, 2000);
+      setLoading(false);
+      return;
+    }
+
+    // Luego de pasar el chequeo de stock, proceder al pedido
+    const payload = {
+      shippingInfo,
+      cartItems: minimalCartItems,
+      shippingMethod,
+      paymentMethod,
+      total,
+    };
+
+    try {
+      const response = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Error al procesar el pedido");
+      }
+
+      const data = await response.json();
+      setOrderCreated(data.order);
+      clearCart(); // 🛒 limpiar carrito después del éxito
+      toast({ title: "¡Pedido realizado con éxito!" });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description:
+          error instanceof Error
+            ? error.message
+            : "No se pudo completar el pedido",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  if (orderProcessed) {
-    return <SuccessMessage total={total} />;
+  const resumenItems: OrderItemResumen[] = cartItems.map((item) => ({
+    id: item.id,
+    name: item.name,
+    price: item.price,
+    quantity: item.quantity,
+    image: item.image || "/placeholder.svg",
+  }));
+
+  if (orderCreated) {
+    return <SuccessMessage order={orderCreated} />;
   }
 
   return (
@@ -128,6 +189,8 @@ export default function CheckoutPage() {
                   saveInfo={saveInfo}
                   setSaveInfo={setSaveInfo}
                   formErrors={formErrors}
+                  shippingMethod={shippingMethod}
+                  paymentMethod={paymentMethod}
                 />
               </CardContent>
             </Card>
@@ -150,10 +213,14 @@ export default function CheckoutPage() {
                 <div className="bg-gray-50 p-3 rounded-md mb-6">
                   <p className="font-medium">Enviar a:</p>
                   <p className="text-sm text-gray-600">
-                    {shippingInfo.firstName} {shippingInfo.lastName},{" "}
-                    {shippingInfo.address}, {shippingInfo.city},{" "}
-                    {shippingInfo.state} {shippingInfo.zipCode},{" "}
-                    {shippingInfo.country}
+                    Nombre: {user?.nombres} {user?.apellidos}
+                  </p>
+                  <p className="text-sm text-gray-600">Correo: {user?.email}</p>
+                  <p className="text-sm text-gray-600">
+                    Direccion: {shippingInfo.address}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    Teléfono: {formatPhoneNumber(shippingInfo.phone)}
                   </p>
                 </div>
 
@@ -170,7 +237,11 @@ export default function CheckoutPage() {
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-semibold">Método de Pago</h2>
+                  <h2 className="text-xl font-semibold">
+                    {paymentMethod === "cash"
+                      ? "Confirmar Pedido (Pago en Efectivo)"
+                      : "Confirmar Pedido (Transferencia Bancaria)"}
+                  </h2>
                   <Button
                     variant="ghost"
                     onClick={() => setCurrentStep("shipping")}
@@ -183,11 +254,11 @@ export default function CheckoutPage() {
                 <div className="bg-gray-50 p-3 rounded-md mb-6">
                   <p className="font-medium">Método de envío:</p>
                   <div className="flex items-center mt-1">
-                    {shippingMethod === "standard" && (
+                    {shippingMethod === "store-pickup" && (
                       <>
-                        <Truck className="h-4 w-4 mr-2 text-gray-600" />
+                        <Store className="h-4 w-4 mr-2 text-gray-600" />
                         <span className="text-sm text-gray-600">
-                          Envío Estándar (3-5 días hábiles) - Gratis
+                          Recoger en tienda - Sin costos adicionales
                         </span>
                       </>
                     )}
@@ -231,10 +302,9 @@ export default function CheckoutPage() {
                   Resumen del Pedido
                 </h2>
                 <OrderSummary
-                  items={cartItems}
+                  items={resumenItems}
                   subtotal={subtotal}
                   shipping={shipping}
-                  tax={tax}
                   total={total}
                 />
 

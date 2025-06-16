@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, Package, Settings, User } from "lucide-react";
+import { LogOut, Settings, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/auth-context";
 import * as Tooltip from "@radix-ui/react-tooltip";
@@ -48,7 +48,7 @@ export default function UserDropdown() {
           <DropdownMenuItem asChild>
             <Link
               href="/perfil"
-              className="cursor-pointer flex items-center text-gray-700 hover:bg-[#D3B29A]/40 transition-colors"
+              className="cursor-pointer flex items-center text-gray-700 hover:!bg-[#D3B29A]/40 transition-colors" //hover:bg-[#D3B29A]/40
             >
               <User className="mr-2 h-4 w-4 text-black" />
               <span>Mi Perfil</span>
@@ -59,7 +59,7 @@ export default function UserDropdown() {
             <DropdownMenuItem asChild>
               <Link
                 href="/admin"
-                className="cursor-pointer flex items-center text-gray-700 hover:bg-[#D3B29A]/40 transition-colors"
+                className="cursor-pointer flex items-center text-gray-700 hover:!bg-[#D3B29A]/40 transition-colors"
               >
                 <Settings className="mr-2 h-4 w-4 text-black" />
                 <span>Administración</span>
@@ -71,7 +71,7 @@ export default function UserDropdown() {
 
           <DropdownMenuItem
             onClick={logout}
-            className="cursor-pointer text-red-500 hover:bg-red-50"
+            className="cursor-pointer text-red-500 hover:!bg-[#D3B29A]/40 transition-colors"
           >
             <LogOut className="mr-2 h-4 w-4" />
             <span>Cerrar Sesión</span>

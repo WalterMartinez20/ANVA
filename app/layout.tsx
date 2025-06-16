@@ -8,13 +8,58 @@ import { Toaster } from "@/components/ui/toaster";
 import Navbar from "@/components/navbar/navbar";
 import Cart from "@/components/cart/cart";
 import Footer from "@/components/home/footer";
+import CookieBanner from "@/components/ui/CookieBanner";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "ANVA - Carteras Artesanales",
   description:
-    "✨ Carteras y accesorios hechos a mano. 🎀 Exclusivos, personalizados y llenos de estilo. 🌸 Para mujeres que valoran lo autentico.",
+    "✨ Carteras y accesorios hechos a mano. 🎀 Exclusivos, personalizados y llenos de estilo. 🌸 Para mujeres que valoran lo auténtico.",
+  keywords: [
+    "carteras artesanales",
+    "accesorios hechos a mano",
+    "moda femenina",
+    "carteras personalizadas",
+    "ANVA",
+  ],
+  authors: [{ name: "ANVA" }],
+  openGraph: {
+    title: "ANVA - Carteras Artesanales",
+    description:
+      "Carteras y accesorios exclusivos, hechos a mano. Descubrí el estilo único de ANVA.",
+    url: "https://tusitio.com", // reemplazá con tu URL real
+    siteName: "ANVA",
+    images: [
+      {
+        url: "https://tusitio.com/og-image.jpg", // poné una imagen representativa (mínimo 1200x630)
+        width: 1200,
+        height: 630,
+        alt: "ANVA - Carteras artesanales hechas a mano",
+      },
+    ],
+    locale: "es_AR",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ANVA - Carteras Artesanales",
+    description:
+      "Carteras hechas a mano, personalizadas y llenas de estilo. Descubrí la colección ANVA.",
+    images: ["https://tusitio.com/og-image.jpg"],
+    creator: "@anvastore", // opcional
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-snippet": -1,
+      "max-image-preview": "large",
+      "max-video-preview": -1,
+    },
+  },
 };
 
 export default function RootLayout({
@@ -43,6 +88,7 @@ export default function RootLayout({
               <Footer />
             </div>
             <Toaster />
+            <CookieBanner />
           </CartProvider>
         </AuthProvider>
       </body>

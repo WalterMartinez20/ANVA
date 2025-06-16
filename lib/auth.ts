@@ -20,6 +20,8 @@ export type JWTPayload = {
   role: Role;
   nombres: string;
   apellidos: string;
+  phone?: string;
+  address?: string;
   lastLogin?: number;
 };
 

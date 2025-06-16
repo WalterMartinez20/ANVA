@@ -49,7 +49,11 @@ export async function GET(request: NextRequest) {
         user: true,
         items: {
           include: {
-            product: true,
+            product: {
+              include: {
+                category: true,
+              },
+            },
           },
         },
         payments: true,
@@ -86,7 +90,7 @@ export async function GET(request: NextRequest) {
         order.items.forEach((item) => {
           const productId = item.productId;
           const product = item.product;
-          const category = product.category || "Sin categoría";
+          const category = item.product?.category?.name ?? "Sin categoría";
 
           // Acumular ventas por producto
           const currentSales = productSales.get(productId) || 0;
@@ -242,6 +246,82 @@ export async function GET(request: NextRequest) {
       }
     });
 
+    // Calcular fechas del período anterior
+    const previousStartDate = new Date(startDate);
+    const previousEndDate = new Date(startDate); // fin del período anterior = inicio del actual
+
+    // VENTAS PERÍODO ANTERIOR
+    const previousOrders = await prisma.order.findMany({
+      where: {
+        createdAt: {
+          gte: previousStartDate,
+          lt: previousEndDate,
+        },
+        status: { not: "CANCELLED" },
+      },
+    });
+    const previousTotalSales = previousOrders.reduce(
+      (sum, order) => sum + order.total,
+      0
+    );
+
+    // PEDIDOS PERÍODO ANTERIOR
+    const previousTotalOrders = previousOrders.length;
+
+    // CLIENTES NUEVOS PERÍODO ACTUAL
+    const customersInPeriod = await prisma.user.findMany({
+      where: {
+        role: Role.USER,
+        createdAt: {
+          gte: startDate,
+        },
+      },
+    });
+    const previousCustomers = await prisma.user.findMany({
+      where: {
+        role: Role.USER,
+        createdAt: {
+          gte: previousStartDate,
+          lt: previousEndDate,
+        },
+      },
+    });
+
+    // PRODUCTOS NUEVOS
+    const newProductsThisPeriod = await prisma.product.count({
+      where: {
+        createdAt: {
+          gte: startDate,
+        },
+      },
+    });
+
+    // Utilidad segura para evitar NaN o división por cero
+    function safePercentageChange(
+      current: number,
+      previous: number
+    ): number | null {
+      if (isNaN(current) || isNaN(previous)) return null;
+      if (previous === 0) {
+        if (current === 0) return 0;
+        return 100;
+      }
+      return ((current - previous) / previous) * 100;
+    }
+
+    const salesChangePercentage = safePercentageChange(
+      totalSales,
+      previousTotalSales
+    );
+    const ordersChangePercentage = safePercentageChange(
+      orders.length,
+      previousTotalOrders
+    );
+    const customersChangePercentage = safePercentageChange(
+      customersInPeriod.length,
+      previousCustomers.length
+    );
+
     return NextResponse.json({
       totalSales,
       totalOrders: orders.length,
@@ -253,6 +333,10 @@ export async function GET(request: NextRequest) {
       salesByCategory,
       ordersByStatus,
       customerGrowth: customersByMonth,
+      salesChangePercentage,
+      ordersChangePercentage,
+      customersChangePercentage,
+      newProductsThisPeriod,
     });
   } catch (error) {
     console.error("Error al obtener datos del dashboard:", error);

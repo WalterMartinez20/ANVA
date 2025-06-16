@@ -1,4 +1,5 @@
 import { Product } from "./producto_admin"; // reutilizamos Product para los items
+import type { User } from "./user";
 
 export interface OrderItem {
   id: number;
@@ -42,3 +43,18 @@ export interface Order {
   deliveryDate: string | null;
   statusHistory: StatusHistory[];
 }
+
+// Este tipo es utilizado para mostrar el resumen de los items en el pedido
+// Este es útil cuando transformás los OrderItem (con product) a una estructura lista para renderizar el resumen (con name, image, price, etc.).
+export interface OrderItemResumen {
+  id: number;
+  name: string;
+  price: number;
+  quantity: number;
+  image: string;
+  options?: string;
+}
+
+export type OrderWithUser = Order & {
+  user: User;
+};

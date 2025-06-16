@@ -14,6 +14,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useStockCheck } from "@/hooks/productos/useStockCheck";
 
 export default function Cart() {
   const {
@@ -30,9 +31,10 @@ export default function Cart() {
   const router = useRouter();
   const { toast } = useToast();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const { checkStock } = useStockCheck();
 
-  const handleCheckout = () => {
-    if (isGuest) {
+  const handleCheckout = async () => {
+    if (isGuest || !isAuthenticated) {
       toast({
         title: "Inicia sesión para continuar",
         description: "Debes iniciar sesión para realizar la compra",
@@ -42,18 +44,23 @@ export default function Cart() {
       return;
     }
 
-    if (!isAuthenticated) {
+    const minimalCartItems = items.map((item) => ({
+      id: item.id,
+      quantity: item.quantity,
+    }));
+
+    const stockResult = await checkStock(minimalCartItems);
+
+    if (!stockResult.ok) {
       toast({
-        title: "Inicia sesión para continuar",
-        description: "Debes iniciar sesión para realizar la compra",
+        title: "Problema con stock",
+        description: stockResult.error,
+        variant: "destructive",
       });
-      setIsOpen(false);
-      router.push("/login");
       return;
     }
 
     setIsCheckingOut(true);
-    // Simular proceso de checkout
     setTimeout(() => {
       router.push("/checkout");
       setIsOpen(false);

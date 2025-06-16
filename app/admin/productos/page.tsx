@@ -7,6 +7,9 @@ import { Plus, Search, Loader2 } from "lucide-react";
 import { ProductTable } from "@/components/productos_admin/ProductTable";
 import { ProductDialog } from "@/components/productos_admin/productos_dialogo/ProductDialog";
 import { useAdminProductos } from "@/hooks/productos_admin/useAdminProductos";
+import HelpSection from "@/components/help/HelpSection";
+import TooltipInfoButton from "@/components/help/TooltipInfoButton";
+
 export default function AdminProductos() {
   const {
     isLoading,
@@ -43,27 +46,41 @@ export default function AdminProductos() {
   }
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Gestión de Productos</h1>
-        <Button className="flex items-center gap-2" onClick={handleCreate}>
-          <Plus className="h-4 w-4" />
-          Nuevo Producto
-        </Button>
-      </div>
+    <div className="space-y-6">
+      {/* Ayuda contextual */}
+      <HelpSection videoUrl="/help-videos/productos.mp4" />
 
-      <div className="flex justify-between items-center mb-6">
-        <div className="relative w-full max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Buscar productos..."
-            className="pl-10"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+      {/* Encabezado principal */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="flex items-center gap-2">
+          <h1 className="text-2xl font-bold">Gestión de Productos</h1>
+          <TooltipInfoButton content="Aquí puedes ver, crear y editar productos del catálogo." />
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button className="flex items-center gap-2" onClick={handleCreate}>
+            <Plus className="h-4 w-4" />
+            Nuevo Producto
+          </Button>
+          <TooltipInfoButton content="Haz clic para añadir un nuevo producto a tu tienda." />
         </div>
       </div>
 
+      {/* Barra de búsqueda */}
+      <div className="relative w-full max-w-sm">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="Buscar productos..."
+          className="pl-10 pr-10"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <div className="absolute right-2 top-1/2 -translate-y-1/2">
+          <TooltipInfoButton content="Puedes buscar por nombre, código o categoría." />
+        </div>
+      </div>
+
+      {/* Tabla de productos */}
       <ProductTable
         products={sortedProducts}
         onEdit={handleEdit}
@@ -71,7 +88,7 @@ export default function AdminProductos() {
         onRequestSort={requestSort}
       />
 
-      {/* Diálogo para crear/editar producto */}
+      {/* Modal de edición / creación */}
       <ProductDialog
         isOpen={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}

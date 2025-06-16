@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server"
-import { getCurrentUserAppRouter, removeAuthCookie } from "@/lib/auth"
-import prisma from "@/lib/prisma"
-import { Role } from "@prisma/client"
+import { NextResponse } from "next/server";
+import { getCurrentUserAppRouter, removeAuthCookie } from "@/lib/auth";
+import prisma from "@/lib/prisma";
+import { Role } from "@prisma/client";
 
 export async function GET() {
   try {
@@ -18,7 +18,7 @@ export async function GET() {
           email: "",
           role: Role.GUEST,
         },
-      })
+      });
     }
 
     // Buscar usuario en la base de datos
@@ -30,22 +30,33 @@ export async function GET() {
         role: true,
         nombres: true,
         apellidos: true,
+        phone: true,
+        address: true,
         createdAt: true,
         updatedAt: true,
         favorites: true,
         orders: true,
+        isActive: true, //esto soluciono que no se desactivara sola la cuenta
       },
-    })
+    });
 
     if (!user) {
       // Si el usuario no existe en la base de datos, eliminar la cookie
-      await removeAuthCookie()
-      return NextResponse.json({ error: "Usuario no encontrado" }, { status: 404 })
+      await removeAuthCookie();
+      return NextResponse.json(
+        { error: "Usuario no encontrado" },
+        { status: 404 }
+      );
     }
+
+    console.log("✅ Usuario desde base de datos:", user);
 
     return NextResponse.json({ user });
   } catch (error) {
-    console.error("Error al obtener usuario:", error)
-    return NextResponse.json({ error: "Error al obtener usuario" }, { status: 500 })
+    console.error("Error al obtener usuario:", error);
+    return NextResponse.json(
+      { error: "Error al obtener usuario" },
+      { status: 500 }
+    );
   }
 }

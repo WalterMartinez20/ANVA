@@ -3,13 +3,15 @@ import { useToast } from "@/components/ui/use-toast";
 import { useCart } from "@/components/cart/cart-provider";
 import { useAuth } from "@/contexts/auth-context";
 import { Product } from "@/types/producto_admin";
+import { useStockCheck } from "@/hooks/productos/useStockCheck";
 
 export function useProductActions() {
   const { toast } = useToast();
   const { addItem } = useCart();
   const { isGuest, isAuthenticated } = useAuth();
+  const { checkStock } = useStockCheck();
 
-  function addToCartFromDetails(
+  async function addToCartFromDetails(
     product: Product,
     selectedColor: string | null,
     availableColors: { id: string; name: string; value: string }[],
@@ -19,6 +21,17 @@ export function useProductActions() {
       toast({
         title: "Selecciona un color",
         description: "Debes seleccionar un color antes de añadir al carrito",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // 🔐 Validar stock antes de agregar
+    const stockResult = await checkStock([{ id: product.id, quantity }]);
+    if (!stockResult.ok) {
+      toast({
+        title: "Sin stock suficiente",
+        description: stockResult.error,
         variant: "destructive",
       });
       return;

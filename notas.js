@@ -1,4 +1,5 @@
 /*
+//**************************************************************************************************************************************************************************************************************
 Estoy desarrollando un sistema de tienda online en Next JS.
 Algunas aclaraciones importantes:
 
@@ -7,20 +8,17 @@ Necesito que me ayudes a:
 Revisar errores de lógica o estructura en lo que ya está hecho.
 Mejorarlo, pero sin reescribirlo todo de cero (solo corregir o sugerir mejoras).
 ¿Te parece si empezamos? Yo te iré pasando el código por bloques, en el orden que te comento abajo.
+//**************************************************************************************************************************************************************************************************************
+
 *--------------------------------------------*--------------------------------------------*--------------------------------------------
 Esa app la tengo en un repo en github donde soy el propietario, el repo tiene con dos ramas, en la rama main tengo la app normal, pero en la segunda rama he creado varias funciones y mejorado la app con categorias, busquedas, politicas, etc., como hago para que la rama main se actualice con esos cambios sin romper nada? 
 *--------------------------------------------*--------------------------------------------*--------------------------------------------
-La idea es que hacer un crud de categorias desde el admin, para que el admin pueda crear y editar las categorias,
-como puedo hacer eso para que al darle click a los botones de main-categories me redirigan a sus categorias, pero estas sean dinamicas, es decir,
-la card 1 redirige a categoria/bolsos, pero en el futuro quiero editar esa categoria o poner otra como por ejemplo /categoria/carteras, quiero poder cambiar dinamicamente a que
-categoria me redigira cada card. Tengo pensado algo como que el admin pueda crear sus propias cards y que pueda editarlas, como el texto, imagen que se muestra, la categoria a la que
-se redirecciona, etc. Ademas, sobre ese tema, quiero tambien hacer lo mismo con el slider de la home, ya que quiero que el admin pueda editar todo el slider, cuantos items quiere poner, que
-texto e imagenes mostrar, a donde redirige el link, etc., y lo demas seria como lo que habias dicho, de tener una vista para la busqueda y otra para las carteras, que necesitaria para hacer todo eso?
-Porque ya tengo varios cruds como el de productos y materiales, pero quiero hacer la pagina mas personalizada agregandole esos otros cruds del slider y las categorias. Por el momento ayudame a hacer las paginas
-de busqueda y categoria de productos, luego que ya este todo eso implementemos que sea dinamico por medio del panel del admin
+TODO: CRUD CATEGORIAS: agregar crud de categorias
+TODO: CRUD MATERIALES: mejorar crud de materiales como en el ejemplo que dio la señora en papel
+TODO: Vista de producto especifico: cuando no tiene materiales, no salen los demas detalles, solo salen cuando se agrega al menos un material. Arreglar que siempre salgan los detalles generales, aunque no se agregue un material
+TODO: Vista de producto especifico: Mejorar la vista de los productos relacionados como product-grid
+TODO: Vista de GRID: Que la imagen de producto no queden sobrando las esquinas en el diseño. Agregar funciones del featured-products como las etiquetas de stock, la categoria sobre la imagen y no en la info de producto, etc.
 */
-
-// Tengo esta page de pedidos que te pase, pero quiero que le agregues la funcion de que al dar click a un pedido, se puedan ver los detalles, asi como en este otro ejemplo mejorado. Al archivo que ya te pase, solo agregale la funcion de que se despliegue la ventana al dar click en ver detalles y tambien agregar el boton cancelar pedido a la par de cada pedido y la opcion de ver el historial de pedidos. Dame el codigo completo y mejorado para descargar como archivo .tsx ya que es muy grande el archivo
 
 // * ---------------------------------------- Este es un diseño alternativo a la vista de productos ------------------------------
 
@@ -762,159 +760,325 @@ export default function ProductPage({ params }: { params: { id: string } }) {
   );
 }
 
-//*-------------------------------------- Ejemplo de diseño de navegación de politicas -----------------------------------*
+/*
+*---------------------------------------------- Ejemplo de uso de prisma con los pedidos --------------------------------------------*
 
+/*
+TODO:*********************************************Diseño ventana de pedido admin**************************************
+Archivo: AdminOrderDialog.tsx
 "use client";
 
-import { usePathname } from "next/navigation";
-import { Ban, Truck, RotateCcw } from "lucide-react";
-import PoliticaCard from "./PoliticaCard";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
+} from "@/components/ui/table";
+import { Card, CardContent } from "@/components/ui/card";
+import { toast } from "@/components/ui/use-toast";
+import { formatDate, formatPrice, getPaymentLabel } from "@/lib/utils";
+import { useState } from "react";
+import OrderProgress from "@/components/orders/OrderProgress";
+import StatusBadge from "@/components/orders/StatusBadge";
+import { Truck, CreditCard, ShoppingBag, Loader2 } from "lucide-react";
+import type { OrderWithUser } from "@/types/order";
 
-export default function PoliticasNavCards() {
-  const pathname = usePathname();
+interface Props {
+  isOpen: boolean;
+  order: OrderWithUser | null;
+  onClose: () => void;
+  onSave: (updated: OrderWithUser) => void;
+}
 
-  const items = [
-    {
-      href: "/politicas/cancelacion",
-      icon: <Ban className="h-6 w-6" />,
-      title: "Cancelación",
-      description: "Cómo cancelar un pedido y en qué casos aplica.",
-    },
-    {
-      href: "/politicas/entrega",
-      icon: <Truck className="h-6 w-6" />,
-      title: "Entrega",
-      description: "Tiempos, métodos y seguimiento de envíos.",
-    },
-    {
-      href: "/politicas/devolucion",
-      icon: <RotateCcw className="h-6 w-6" />,
-      title: "Devolución",
-      description: "Cuándo y cómo solicitar una devolución.",
-    },
-  ];
+export default function AdminOrderDialog({
+  isOpen,
+  order,
+  onClose,
+  onSave,
+}: Props) {
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [newStatus, setNewStatus] = useState(order?.status || "");
+  const [statusNote, setStatusNote] = useState("");
+  const [tracking, setTracking] = useState({
+    trackingNumber: order?.trackingNumber || "",
+    carrier: order?.carrier || "",
+    estimatedDeliveryDate: order?.estimatedDeliveryDate
+      ? new Date(order.estimatedDeliveryDate).toISOString().split("T")[0]
+      : "",
+  });
+
+  if (!order) return null;
+
+  const handleSave = async () => {
+    setIsUpdating(true);
+    try {
+      const response = await fetch(`/api/orders/${order.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          status: newStatus,
+          statusNote,
+          trackingNumber: tracking.trackingNumber,
+          carrier: tracking.carrier,
+          estimatedDeliveryDate: tracking.estimatedDeliveryDate
+            ? new Date(tracking.estimatedDeliveryDate).toISOString()
+            : null,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Error al actualizar");
+      }
+
+      const updated = await response.json();
+      toast({
+        title: "Actualizado",
+        description: `Pedido #${order.id} actualizado`,
+      });
+
+      onSave(updated.order);
+      onClose();
+    } catch (e: any) {
+      toast({
+        title: "Error",
+        description: e.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
   return (
-    <div className="mb-10">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {items.map((item) => (
-          <PoliticaCard
-            key={item.href}
-            href={item.href}
-            title={item.title}
-            icon={item.icon}
-            description={item.description}
-            active={pathname === item.href}
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-6">
+        <DialogHeader>
+          <DialogTitle className="text-2xl font-bold text-black mb-4">
+            Admin Pedido #{order.id} – {order.user.nombres} {order.user.apellidos}
+          </DialogTitle>
+        </DialogHeader>
+
+        <div className="space-y-8">
+          <OrderProgress
+            status={order.status}
+            estimatedDeliveryDate={order.estimatedDeliveryDate ?? undefined}
+            shippingDate={order.shippingDate ?? undefined}
+            deliveryDate={order.deliveryDate ?? undefined}
+            address={order.address ?? undefined}
+            currentStatus={order.status}
           />
-        ))}
-      </div>
-    </div>
+
+          {/* Información editable */}
+          <Card className="border border-gray-200 shadow-sm bg-white">
+            <CardContent className="p-5 space-y-4">
+              <div className="flex items-center gap-3 text-gray-800">
+                <ShoppingBag className="h-5 w-5 text-gray-700" />
+                <h3 className="text-base font-semibold">Información del Pedido</h3>
+              </div>
+              <div className="grid md:grid-cols-2 gap-4 text-sm text-gray-700">
+                <p><strong>Correo:</strong> {order.user.email}</p>
+                <p><strong>Teléfono:</strong> {order.phone || "No especificado"}</p>
+                <p><strong>Dirección:</strong> {order.address || "No especificada"}</p>
+                <p><strong>Fecha de Pedido:</strong> {formatDate(order.createdAt)}</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium">Estado</label>
+                  <Select value={newStatus} onValueChange={setNewStatus}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Estado" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="PENDING">Pendiente</SelectItem>
+                      <SelectItem value="PROCESSING">En proceso</SelectItem>
+                      <SelectItem value="SHIPPED">Enviado</SelectItem>
+                      <SelectItem value="DELIVERED">Entregado</SelectItem>
+                      <SelectItem value="CANCELLED">Cancelado</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium">Fecha Estimada de Entrega</label>
+                  <Input
+                    type="date"
+                    value={tracking.estimatedDeliveryDate}
+                    onChange={(e) =>
+                      setTracking({ ...tracking, estimatedDeliveryDate: e.target.value })
+                    }
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium">Transportista</label>
+                  <Input
+                    value={tracking.carrier}
+                    onChange={(e) =>
+                      setTracking({ ...tracking, carrier: e.target.value })
+                    }
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium">Número de Seguimiento</label>
+                  <Input
+                    value={tracking.trackingNumber}
+                    onChange={(e) =>
+                      setTracking({ ...tracking, trackingNumber: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium">Nota de estado (opcional)</label>
+                <Input
+                  placeholder="Ej: Se envió por correo prioritario"
+                  value={statusNote}
+                  onChange={(e) => setStatusNote(e.target.value)}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Productos */}
+          <Card className="border border-gray-200 shadow-sm bg-white">
+            <CardContent className="p-5">
+              <div className="flex items-center gap-3 text-gray-800 mb-4">
+                <Truck className="h-5 w-5 text-gray-700" />
+                <h3 className="text-base font-semibold">Productos</h3>
+              </div>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Producto</TableHead>
+                      <TableHead>Precio</TableHead>
+                      <TableHead>Cantidad</TableHead>
+                      <TableHead className="text-right">Subtotal</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {order.items.map((item) => (
+                      <TableRow key={item.id}>
+                        <TableCell>
+                          <div className="flex items-center gap-4">
+                            <img
+                              src={
+                                item.product.images?.find((img) => img.isMain)?.url ||
+                                item.product.images?.[0]?.url ||
+                                "/placeholder.svg"
+                              }
+                              alt={item.product.name}
+                              className="w-12 h-12 rounded-md object-cover border"
+                            />
+                            <p className="font-medium text-gray-900">{item.product.name}</p>
+                          </div>
+                        </TableCell>
+                        <TableCell>{formatPrice(item.price)}</TableCell>
+                        <TableCell>{item.quantity}</TableCell>
+                        <TableCell className="text-right">
+                          {formatPrice(item.price * item.quantity)}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <DialogFooter className="mt-6">
+          <Button
+            onClick={handleSave}
+            disabled={isUpdating}
+            className="min-w-[150px]"
+          >
+            {isUpdating ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Guardando...
+              </>
+            ) : (
+              "Guardar Cambios"
+            )}
+          </Button>
+          <Button variant="outline" onClick={onClose}>
+            Cerrar
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
+
 /*
-*---------------------------------------------- Ejemplo de uso de prisma con los pedidos --------------------------------------------*
-Gracias por compartir el esquema de Prisma. Está bien estructurado y cubre muy bien los aspectos fundamentales de una tienda online. Ahora te muestro un ejemplo **práctico y realista** de cómo usar las tablas `Order`, `OrderItem` y `OrderStatusHistory` en una función de backend usando Prisma Client.
+*Para que no se actualicen datos en tiempo real, si no hasta que se da click a guardar
+*Con esta funcion (Esto va en app\perfil\page.tsx):
+const { refreshUser } = useAuth(); // ✅ asegurate de importar esto
+const handleSaveChanges = async () => {
+  setIsLoading(true);
+  try {
+    const response = await fetch("/api/users/profile", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        nombres: profile.nombres,
+        apellidos: profile.apellidos,
+        email: profile.email,
+        phone: profile.phone,
+        address: profile.address,
+      }),
+    });
 
----
+    if (!response.ok) {
+      throw new Error("Error al actualizar perfil");
+    }
 
-### 🎯 **Caso de uso:** Crear una orden con sus ítems y el historial de estado inicial.
+    // ✅ Refrescar datos en el contexto global
+    await refreshUser();
 
-#### 💡 Supuestos:
+    setOriginalProfile(profile);
+    setHasChanges(false);
 
-* El usuario está autenticado.
-* Tiene productos en su carrito con cantidades.
-* La orden se crea con estado `PENDING`.
-
----
-
-### ✅ **Ejemplo en un handler o servicio (TypeScript/Next.js API Route o handler)**
-
-```ts
-import { prisma } from '@/lib/prisma';
-import { OrderStatus } from '@prisma/client';
-
-type CreateOrderParams = {
-  userId: number;
-  items: {
-    productId: number;
-    quantity: number;
-    price: number;
-  }[];
-  address?: string;
-  phone?: string;
-  notes?: string;
+    toast({
+      title: "Perfil actualizado",
+      description: "Tus cambios han sido guardados exitosamente",
+    });
+  } catch (error) {
+    toast({
+      title: "Error",
+      description: "No se pudieron guardar los cambios",
+      variant: "destructive",
+    });
+  } finally {
+    setIsLoading(false);
+  }
 };
-
-export async function createOrder({
-  userId,
-  items,
-  address,
-  phone,
-  notes
-}: CreateOrderParams) {
-  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-
-  const order = await prisma.order.create({
-    data: {
-      userId,
-      total,
-      address,
-      phone,
-      notes,
-      status: OrderStatus.PENDING,
-      items: {
-        create: items.map(item => ({
-          productId: item.productId,
-          quantity: item.quantity,
-          price: item.price,
-        })),
-      },
-      statusHistory: {
-        create: {
-          status: OrderStatus.PENDING,
-          notes: 'Orden creada',
-        },
-      },
-    },
-    include: {
-      items: true,
-      statusHistory: true,
-    },
-  });
-
-  return order;
-}
-```
-
----
-
-### 📦 ¿Qué hace este ejemplo?
-
-1. Calcula el total de la orden.
-2. Crea una nueva orden vinculada al usuario.
-3. Registra los `OrderItem`s en la tabla relacionada.
-4. Registra el primer `OrderStatusHistory` con estado `PENDING`.
-
----
-
-### 🧪 ¿Cómo lo llamarías?
-
-```ts
-const newOrder = await createOrder({
-  userId: 1,
-  items: [
-    { productId: 10, quantity: 2, price: 25.0 },
-    { productId: 5, quantity: 1, price: 50.0 }
-  ],
-  address: 'Calle Falsa 123',
-  phone: '+123456789',
-  notes: 'Por favor entregar después de las 18 hs'
-});
-```
-
----
-
-¿Querés que te muestre cómo hacer una función para actualizar el estado de una orden y registrar ese cambio en `OrderStatusHistory` también?
-
+  * Y pasarle profile a ProfileSidebar se hace que no se actualice el estado de profile en tiempo real, si no hasta que se da click a guardar
+  * // profile={{nombres: user?.nombres || "", apellidos: user?.apellidos || "", email: user?.email || "", phone: user?.phone || "", address: user?.address || "",}}
 */

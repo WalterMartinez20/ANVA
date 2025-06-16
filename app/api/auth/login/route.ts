@@ -36,6 +36,8 @@ export async function POST(request: Request) {
       role: user.role,
       nombres: user.nombres,
       apellidos: user.apellidos,
+      phone: user.phone ?? undefined,
+      address: user.address ?? undefined,
     };
 
     const token = createToken(payload);

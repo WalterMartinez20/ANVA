@@ -3,12 +3,12 @@ import {
   Facebook,
   Instagram,
   Twitter,
-  Ban,
-  Truck,
-  RotateCcw,
   Info,
+  FileText,
+  Lock,
+  Cookie,
+  HelpCircle,
 } from "lucide-react";
-// import Info from "../productos/Info";
 
 export default function Footer() {
   return (
@@ -67,30 +67,39 @@ export default function Footer() {
             <h3 className="text-lg font-semibold mb-4">Políticas</h3>
             <ul className="space-y-2">
               <li className="flex items-center gap-2">
-                <Ban className="w-4 h-4 text-gray-400" />
+                <FileText className="w-4 h-4 text-gray-400" />
                 <Link
-                  href="/politicas/cancelacion"
+                  href="/politicas"
                   className="text-gray-400 hover:text-white"
                 >
-                  Políticas de Cancelación
+                  Todas las Politicas
                 </Link>
               </li>
               <li className="flex items-center gap-2">
-                <Truck className="w-4 h-4 text-gray-400" />
+                <Lock className="w-4 h-4 text-gray-400" />
                 <Link
-                  href="/politicas/entrega"
+                  href="/politicas/privacidad"
                   className="text-gray-400 hover:text-white"
                 >
-                  Políticas de Entrega
+                  Politicas de Privacidad
                 </Link>
               </li>
               <li className="flex items-center gap-2">
-                <RotateCcw className="w-4 h-4 text-gray-400" />
+                <Cookie className="w-4 h-4 text-gray-400" />
                 <Link
-                  href="/politicas/devolucion"
+                  href="/politicas/cookies"
                   className="text-gray-400 hover:text-white"
                 >
-                  Políticas de Devolución
+                  Politicas de Cookies
+                </Link>
+              </li>
+              <li className="flex items-center gap-2">
+                <HelpCircle className="w-4 h-4 text-gray-400" />
+                <Link
+                  href="/politicas/cookies"
+                  className="text-gray-400 hover:text-white"
+                >
+                  Preguntas Frecuentes
                 </Link>
               </li>
               <li className="flex items-center gap-2">

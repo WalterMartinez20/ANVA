@@ -25,7 +25,7 @@ const socialItems = [
   {
     icon: MessageCircle,
     name: "WhatsApp",
-    link: "https://wa.me/1234567890",
+    link: "https://wa.me/78659463",
     hoverColor: "hover:bg-[#25D366]",
     iconColor: "text-[#25D366]",
     tooltipColor: "bg-[#25D366]",

@@ -19,12 +19,14 @@ interface AuthContextType {
   isAdmin: boolean;
   isGuest: boolean;
   isUser: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<User>;
   continueAsGuest: () => Promise<void>;
   register: (userData: RegisterData) => Promise<void>;
   createUser: (userData: CreateUserData) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
+  reactivate: () => Promise<void>;
+  deactivate: () => Promise<void>;
 }
 
 interface RegisterData {
@@ -32,6 +34,8 @@ interface RegisterData {
   password: string;
   nombres: string;
   apellidos: string;
+  phone: string;
+  address: string;
 }
 
 interface CreateUserData extends RegisterData {
@@ -51,13 +55,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsLoading(true);
       const response = await fetch("/api/auth/me");
       const data = await response.json();
+
       if (response.ok) {
+        console.log("🔄 user after /api/auth/me:", data.user);
         setUser(data.user);
       } else {
         setUser(null);
       }
     } catch (error) {
-      console.error("Error al verificar autenticación:", error);
+      console.error("❌ Error al verificar autenticación:", error); // ✅ LOG 3
       setUser(null);
     } finally {
       setIsLoading(false);
@@ -68,7 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     refreshUser();
   }, [refreshUser]);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string): Promise<User> => {
     setIsLoading(true);
     try {
       const response = await fetch("/api/auth/login", {
@@ -82,10 +88,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw new Error(data.error || "Error al iniciar sesión");
 
       setUser(data.user);
+
       toast({
         title: "Sesión iniciada",
         description: `Bienvenido/a, ${data.user.nombres}`,
       });
+
+      return data.user; // ✅ Devuelve el usuario
     } catch (error: any) {
       console.error(error);
       toast({
@@ -106,6 +115,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       apellidos: "",
       email: "",
       role: Role.GUEST,
+      isActive: true,
     });
     router.push("/");
   };
@@ -204,6 +214,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const reactivate = async () => {
+    try {
+      const res = await fetch("/api/users/reactivate", { method: "POST" });
+      const data = await res.json();
+
+      if (!res.ok)
+        throw new Error(data.error || "No se pudo reactivar la cuenta");
+
+      await refreshUser(); // fuerza la recarga del usuario
+      toast({
+        title: "Cuenta reactivada",
+        description: "Tu cuenta está activa nuevamente.",
+      });
+
+      router.push("/perfil"); // o router.refresh();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "No se pudo reactivar la cuenta",
+        variant: "destructive",
+      });
+      throw error;
+    }
+  };
+
+  const deactivate = async () => {
+    const confirmed = confirm(
+      "¿Estás seguro de que querés desactivar tu cuenta?\n\nEsta acción cerrará tu sesión y desactivará temporalmente tu cuenta."
+    );
+    if (!confirmed) return;
+
+    try {
+      const res = await fetch("/api/users/deactivate", { method: "POST" });
+      if (!res.ok) throw new Error();
+
+      await logout(); // cierra sesión, limpia estado
+      localStorage.removeItem("cart");
+      window.dispatchEvent(new Event("clear-cart"));
+    } catch (error) {
+      throw new Error("No se pudo desactivar la cuenta");
+    }
+  };
+
   const isAuthenticated = !!user && user.role !== Role.GUEST;
   const isAdmin = user?.role === Role.ADMIN;
   const isGuest = user?.role === Role.GUEST;
@@ -224,6 +277,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         createUser,
         logout,
         refreshUser,
+        reactivate,
+        deactivate,
       }}
     >
       {children}

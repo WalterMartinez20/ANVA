@@ -25,8 +25,8 @@ import { Loader2, ShoppingBag, CreditCard, Truck, History } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import OrderProgress from "@/components/orders/OrderProgress";
 import StatusBadge from "./StatusBadge";
-import PaymentStatusBadge from "./PaymentStatusBadge";
-import type { Order } from "@/types/pedido";
+import type { Order } from "@/types/order";
+import { getPaymentLabel } from "@/lib/utils";
 
 interface OrderDetailsDialogProps {
   order: Order | null;
@@ -36,7 +36,7 @@ interface OrderDetailsDialogProps {
   isCancelling: boolean;
 }
 
-export default function DetailsDialog({
+export default function OrderDialog({
   order,
   isOpen,
   onClose,
@@ -80,7 +80,7 @@ export default function DetailsDialog({
                   </p>
                   <p>
                     <strong>Estado:</strong>{" "}
-                    <StatusBadge status={order.status} />
+                    <StatusBadge status={order.status} context="order" />
                   </p>
                   <p>
                     <strong>Total:</strong> ${order.total.toFixed(2)}
@@ -151,11 +151,6 @@ export default function DetailsDialog({
                               <p className="font-medium text-gray-900">
                                 {item.product.name}
                               </p>
-                              {/* {item.product.sku && (
-                                <p className="text-xs text-gray-500">
-                                  SKU: {item.product.sku}
-                                </p>
-                              )} */}
                             </div>
                           </div>
                         </TableCell>
@@ -174,7 +169,7 @@ export default function DetailsDialog({
 
           {/* Pagos */}
           {order.payments.length > 0 && (
-            <Card className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+            <Card className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow bg-white">
               <CardContent className="p-5">
                 <div className="flex items-center gap-3 text-gray-800 mb-4">
                   <CreditCard className="h-5 w-5 text-gray-700" />
@@ -193,9 +188,12 @@ export default function DetailsDialog({
                     <TableBody>
                       {order.payments.map((payment) => (
                         <TableRow key={payment.id}>
-                          <TableCell>{payment.method}</TableCell>
                           <TableCell>
-                            <PaymentStatusBadge status={payment.status} />
+                            {getPaymentLabel?.(payment.method) ??
+                              payment.method}
+                          </TableCell>
+                          <TableCell>
+                            <StatusBadge status={payment.status} />
                           </TableCell>
                           <TableCell>{payment.reference || "-"}</TableCell>
                           <TableCell className="text-right">
@@ -211,8 +209,8 @@ export default function DetailsDialog({
           )}
 
           {/* Historial */}
-          {order.statusHistory?.length > 0 && (
-            <Card className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+          {/* {order.statusHistory?.length > 0 && (
+            <Card className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow bg-white">
               <CardContent className="p-5">
                 <div className="flex items-center gap-3 text-gray-800 mb-4">
                   <History className="h-5 w-5 text-gray-700" />
@@ -244,10 +242,10 @@ export default function DetailsDialog({
                 </div>
               </CardContent>
             </Card>
-          )}
+          )} */}
 
           {/* Footer */}
-          <DialogFooter>
+          <DialogFooter className="flex justify-between">
             {(order.status === "PENDING" || order.status === "PROCESSING") && (
               <Button
                 variant="destructive"

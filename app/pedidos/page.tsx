@@ -6,11 +6,12 @@ import { useAuth } from "@/contexts/auth-context";
 import { toast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Package, ShoppingBag } from "lucide-react";
+
+import { Skeleton } from "@/components/ui/skeleton";
 import OrderTable from "@/components/orders/OrderTable";
-import OrderDetailsDialog from "@/components/orders/DetailsDialog";
-import type { Order } from "@/types/pedido"; // ✅ Si necesitás acceder a Product (usado dentro de OrderItem), ese ya está definido en producto_admin.ts, y está referenciado internamente en pedido.ts. No necesitás importar Product directamente.
+import OrderDetailsDialog from "@/components/orders/OrderDialog";
+import type { Order } from "@/types/order"; // ✅ Si necesitás acceder a Product (usado dentro de OrderItem), ese ya está definido en producto_admin.ts, y está referenciado internamente en pedido.ts. No necesitás importar Product directamente.
 
 export default function PedidosPage() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -93,20 +94,39 @@ export default function PedidosPage() {
     }
   };
 
+  const filterOrdersByTab = (orders: Order[], tab: string) => {
+    switch (tab) {
+      case "pending":
+        return orders.filter((o) => o.status === "PENDING");
+      case "processing":
+        return orders.filter((o) => o.status === "PROCESSING");
+      case "shipped":
+        return orders.filter((o) => o.status === "SHIPPED");
+      case "delivered":
+        return orders.filter((o) => o.status === "DELIVERED");
+      case "cancelled":
+        return orders.filter((o) => o.status === "CANCELLED");
+      case "all":
+      default:
+        return orders;
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold mb-6">Mis Pedidos</h1>
+
         <div className="space-y-4">
           {[...Array(3)].map((_, i) => (
-            <div key={i} className="border rounded-md p-4 space-y-2">
-              <Skeleton className="h-4 w-1/3" />
+            <div
+              key={i}
+              className="border rounded-md p-4 bg-white shadow-sm animate-pulse space-y-3"
+            >
               <Skeleton className="h-4 w-1/2" />
-              <div className="grid grid-cols-4 gap-4 mt-2">
-                <Skeleton className="h-4 col-span-1" />
-                <Skeleton className="h-4 col-span-1" />
-                <Skeleton className="h-4 col-span-1" />
-                <Skeleton className="h-4 col-span-1" />
+              <Skeleton className="h-4 w-1/3" />
+              <div className="flex justify-end pt-2">
+                <Skeleton className="h-8 w-20 rounded-md" />
               </div>
             </div>
           ))}
@@ -115,6 +135,7 @@ export default function PedidosPage() {
     );
   }
 
+  // Mensaje de "inicia sesion para ver tus pedidos"
   if (isGuest) {
     return (
       <div className="container mx-auto px-4 py-8 text-center">
@@ -157,60 +178,32 @@ export default function PedidosPage() {
           onValueChange={setActiveTab}
           className="w-full"
         >
-          <TabsList className="grid w-full grid-cols-5 mb-6">
+          <TabsList className="grid w-full grid-cols-6 mb-6">
             <TabsTrigger value="all">Todos</TabsTrigger>
             <TabsTrigger value="pending">Pendientes</TabsTrigger>
             <TabsTrigger value="processing">En proceso</TabsTrigger>
+            <TabsTrigger value="shipped">Enviados</TabsTrigger>
             <TabsTrigger value="delivered">Entregados</TabsTrigger>
             <TabsTrigger value="cancelled">Cancelados</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="all">
-            <OrderTable
-              orders={orders}
-              onView={handleViewOrder}
-              onCancel={handleCancelOrder}
-              isCancelling={isCancelling}
-            />
-          </TabsContent>
-
-          <TabsContent value="pending">
-            <OrderTable
-              orders={orders.filter((o) => o.status === "PENDING")}
-              onView={handleViewOrder}
-              onCancel={handleCancelOrder}
-              isCancelling={isCancelling}
-            />
-          </TabsContent>
-
-          <TabsContent value="processing">
-            <OrderTable
-              orders={orders.filter((o) =>
-                ["PROCESSING", "SHIPPED"].includes(o.status)
-              )}
-              onView={handleViewOrder}
-              onCancel={handleCancelOrder}
-              isCancelling={isCancelling}
-            />
-          </TabsContent>
-
-          <TabsContent value="delivered">
-            <OrderTable
-              orders={orders.filter((o) => o.status === "DELIVERED")}
-              onView={handleViewOrder}
-              onCancel={handleCancelOrder}
-              isCancelling={isCancelling}
-            />
-          </TabsContent>
-
-          <TabsContent value="cancelled">
-            <OrderTable
-              orders={orders.filter((o) => o.status === "CANCELLED")}
-              onView={handleViewOrder}
-              onCancel={handleCancelOrder}
-              isCancelling={isCancelling}
-            />
-          </TabsContent>
+          {[
+            "all",
+            "pending",
+            "processing",
+            "shipped",
+            "delivered",
+            "cancelled",
+          ].map((tabValue) => (
+            <TabsContent key={tabValue} value={tabValue}>
+              <OrderTable
+                orders={filterOrdersByTab(orders, tabValue)}
+                onView={handleViewOrder}
+                onCancel={handleCancelOrder}
+                isCancelling={isCancelling}
+              />
+            </TabsContent>
+          ))}
         </Tabs>
       )}
 

@@ -1,19 +1,10 @@
 import { Separator } from "@/components/ui/separator";
-
-interface OrderItem {
-  id: number;
-  name: string;
-  price: number;
-  quantity: number;
-  image: string;
-  options?: string;
-}
+import type { OrderItemResumen } from "@/types/order";
 
 interface OrderSummaryProps {
-  items: OrderItem[];
+  items: OrderItemResumen[];
   subtotal: number;
   shipping: number;
-  tax: number;
   total: number;
 }
 
@@ -21,7 +12,6 @@ export function OrderSummary({
   items,
   subtotal,
   shipping,
-  tax,
   total,
 }: OrderSummaryProps) {
   return (
@@ -60,10 +50,6 @@ export function OrderSummary({
         <div className="flex justify-between">
           <span>Envío</span>
           <span>{shipping === 0 ? "Gratis" : `$${shipping.toFixed(2)}`}</span>
-        </div>
-        <div className="flex justify-between">
-          <span>Impuestos</span>
-          <span>${tax.toFixed(2)}</span>
         </div>
         <Separator />
         <div className="flex justify-between font-bold text-lg">

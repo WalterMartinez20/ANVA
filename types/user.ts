@@ -8,6 +8,10 @@ export interface User {
   updatedAt?: Date;
   favorites?: any[];
   orders?: any[];
+  phone?: string;
+  address?: string;
+  avatar?: string;
+  isActive: boolean;
 }
 
 export enum Role {

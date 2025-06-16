@@ -17,12 +17,14 @@ interface Props {
   product: Product;
   isFavorite: boolean;
   onToggleFavorite: (productId: number) => void;
+  outOfStock?: boolean; // para mostrar un mensaje de stock
 }
 
 export default function ProductCard({
   product,
   isFavorite,
   onToggleFavorite,
+  outOfStock,
 }: Props) {
   const { addItem } = useCart();
   const { toast } = useToast();
@@ -91,6 +93,11 @@ export default function ProductCard({
             showThumbnails={false}
           />
         </Link>
+        {outOfStock && (
+          <div className="absolute top-2 left-2 bg-red-600 text-white text-xs font-semibold px-2 py-1 rounded z-10">
+            Sin stock
+          </div>
+        )}
         {/* Aqui va el boton favoritos (se renderiza por medio del componente Actions) ❤️ */}
       </div>
 
@@ -120,7 +127,7 @@ export default function ProductCard({
           }}
           isFavorite={isFavorite}
           isAddingToFavorites={addingToCart}
-          disabled={product.stock <= 0 || addingToCart}
+          disabled={outOfStock || addingToCart}
           compact
         />
       </div>

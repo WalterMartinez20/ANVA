@@ -48,6 +48,9 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 
+import HelpSection from "@/components/help/HelpSection";
+import TooltipInfoButton from "@/components/help/TooltipInfoButton";
+
 interface Category {
   id: number;
   name: string;
@@ -305,12 +308,20 @@ export default function AdminCategorias() {
 
   return (
     <div>
+      <HelpSection videoUrl="/help-videos/categorias.mp4" />
+
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Gestión de Categorías</h1>
-        <Button className="flex items-center gap-2" onClick={handleCreate}>
-          <Plus className="h-4 w-4" />
-          Nueva Categoría
-        </Button>
+        <div className="flex items-center gap-2">
+          <h1 className="text-2xl font-bold">Gestión de Categorías</h1>
+          <TooltipInfoButton content="Aquí puedes gestionar las categorías y subcategorías de productos." />
+        </div>
+        <div className="flex items-center gap-2">
+          <Button className="flex items-center gap-2" onClick={handleCreate}>
+            <Plus className="h-4 w-4" />
+            Nueva Categoría
+          </Button>
+          <TooltipInfoButton content="Crea una nueva categoría principal para agrupar productos." />
+        </div>
       </div>
 
       <div className="flex justify-between items-center mb-6">
@@ -322,6 +333,9 @@ export default function AdminCategorias() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
+          <div className="absolute right-0 top-1/2 -translate-y-1/2 pr-2">
+            <TooltipInfoButton content="Busca por nombre o descripción de la categoría." />
+          </div>
         </div>
       </div>
 

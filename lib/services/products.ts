@@ -62,19 +62,33 @@ export const saveProduct = async (
       body: JSON.stringify(productData),
     });
 
-    if (!res.ok) {
-      const data = await res.json();
-      throw new Error(data.error || "Error al guardar producto");
+    let data: any;
+    try {
+      data = await res.json();
+    } catch (jsonError) {
+      console.error("❌ Error al parsear JSON del servidor", jsonError);
+      throw new Error("Respuesta del servidor no es válida.");
     }
 
-    const data = await res.json();
+    if (!res.ok) {
+      console.error("❌ Error del servidor al guardar producto:", data);
+      throw new Error(data?.error || "Error al guardar producto.");
+    }
+
+    if (!data?.product) {
+      console.error(
+        "❌ La respuesta del servidor no contiene un producto válido:",
+        data
+      );
+      throw new Error("La respuesta del servidor es incompleta.");
+    }
 
     return {
       ...data.product,
       colors: parseColors(data.product.colors),
     };
   } catch (error) {
-    console.error("Error en saveProduct:", error);
+    console.error("💥 Error en saveProduct:", error);
     throw error;
   }
 };
@@ -111,7 +125,7 @@ export const uploadImage = async (file: File): Promise<string> => {
 
 // Obtener todas las categorías desde la API
 export const getCategories = async (): Promise<string[]> => {
-  const res = await fetch("/api/categories/all"); // ✅ endpoint de categorias
+  const res = await fetch("/api/categories/all");
   if (!res.ok) throw new Error("No se pudieron cargar las categorías");
 
   const data = await res.json();

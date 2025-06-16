@@ -8,6 +8,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getOrderStatusLabel } from "@/lib/utils";
 
 interface OrderTrackingProps {
   status: string;
@@ -75,9 +76,10 @@ export default function OrderProgress({
             "absolute top-1/2 left-0 h-[2px] -translate-y-1/2 bg-green-500 z-10 transition-all duration-300",
             {
               "w-0": progress < 0,
-              "w-1/3": progress === 0,
-              "w-2/3": progress === 1,
-              "w-full": progress >= 2,
+              "w-1/4": progress === 0,
+              "w-2/4": progress === 1,
+              "w-3/4": progress === 2,
+              "w-full": progress === 3,
             }
           )}
         />
@@ -126,7 +128,7 @@ export default function OrderProgress({
         <div>
           <p className="text-gray-500">Estado actual:</p>
           <p className="font-medium text-green-700">
-            {currentStatus || "En preparación"}
+            {getOrderStatusLabel(currentStatus || status)}
           </p>
         </div>
       </div>

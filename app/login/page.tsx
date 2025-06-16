@@ -22,7 +22,7 @@ export default function LoginPage() {
   const [credentials, setCredentials] = useState({ email: "", password: "" });
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const { login, continueAsGuest } = useAuth();
+  const { login, continueAsGuest, isAdmin, reactivate } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
 
@@ -49,13 +49,19 @@ export default function LoginPage() {
 
     setIsLoading(true);
     try {
-      await login(credentials.email, credentials.password);
+      const loggedUser = await login(credentials.email, credentials.password);
       toast({
         title: "Inicio de sesión exitoso",
         description: "Bienvenido de nuevo",
       });
-      router.push("/");
-    } catch {
+
+      // ✅ Redirección según rol
+      if (loggedUser.role === "ADMIN") {
+        router.push("/admin");
+      } else {
+        router.push("/perfil");
+      }
+    } catch (error: any) {
       showError("Credenciales incorrectas. Intenta nuevamente.");
     } finally {
       setIsLoading(false);
@@ -77,6 +83,9 @@ export default function LoginPage() {
       setIsLoading(false);
     }
   };
+
+  const isReactivationDisabled =
+    !credentials.email || !credentials.password || isLoading;
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-50">

@@ -139,7 +139,7 @@ export const ProductMaterialsTab: React.FC<Props> = ({
         </Table>
       ) : (
         <div className="text-center py-8 text-red-500 font-medium">
-          No hay materiales asignados. Agrega al menos uno.
+          Este producto no tiene materiales asignados.
         </div>
       )}
     </div>

@@ -1,59 +1,87 @@
-import Link from "next/link";
-import { Card, CardContent } from "@/components/ui/card";
-import { Ban, Truck, RotateCcw } from "lucide-react";
+import PoliticaCard from "@/components/politicas/PoliticaCard";
+import PoliticasNavCards from "@/components/politicas/PoliticasNavCards";
+import {
+  XCircle,
+  Truck,
+  RotateCcw,
+  ShieldCheck,
+  FileText,
+  Info,
+  Cookie,
+  HelpCircle,
+} from "lucide-react";
 
-export default function PoliticasPage() {
+export default function PoliticasHome() {
   return (
-    <div className="container mx-auto px-4 py-12 max-w-4xl">
-      <h1 className="text-3xl font-bold mb-8 text-center">
-        Nuestras Políticas
-      </h1>
+    <div className="px-4 py-12 max-w-[100vw] mx-auto">
+      <div className="flex flex-col md:flex-row gap-8">
+        {/* Menú lateral de navegación */}
+        <PoliticasNavCards />
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Link href="/politicas/cancelacion">
-          <Card className="hover:shadow-md transition-shadow cursor-pointer">
-            <CardContent className="p-6">
-              <div className="flex items-center mb-4">
-                <Ban className="h-6 w-6 text-primary mr-2" />
-                <h2 className="text-lg font-semibold">Cancelación</h2>
-              </div>
-              <p className="text-gray-700 text-sm">
-                Conocé cómo y cuándo podés cancelar un pedido, y en qué casos
-                aplican excepciones.
-              </p>
-            </CardContent>
-          </Card>
-        </Link>
+        {/* Contenido principal */}
+        <main className="flex-1">
+          <h1 className="text-3xl font-bold mb-6">Políticas y Términos</h1>
+          <p className="text-muted-foreground mb-10 max-w-2xl">
+            Conocé nuestras políticas de servicio para comprar con tranquilidad:
+            entregas, cancelaciones, devoluciones, privacidad, cookies y más.
+          </p>
 
-        <Link href="/politicas/entrega">
-          <Card className="hover:shadow-md transition-shadow cursor-pointer">
-            <CardContent className="p-6">
-              <div className="flex items-center mb-4">
-                <Truck className="h-6 w-6 text-primary mr-2" />
-                <h2 className="text-lg font-semibold">Entrega</h2>
-              </div>
-              <p className="text-gray-700 text-sm">
-                Detalles sobre tiempos de envío, métodos disponibles y cómo
-                seguir tu pedido.
-              </p>
-            </CardContent>
-          </Card>
-        </Link>
+          <section className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {/* Grupo: Términos y Condiciones */}
+            <PoliticaCard
+              title="Términos y Condiciones"
+              description="Normas generales para el uso del sitio y servicios."
+              icon={<FileText className="h-5 w-5" />}
+              href="/politicas/terminos"
+            />
+            <PoliticaCard
+              title="Política de Devolución"
+              description="Casos aceptados y proceso para devolver productos."
+              icon={<RotateCcw className="h-5 w-5" />}
+              href="/politicas/devolucion"
+            />
+            <PoliticaCard
+              title="Política de Cancelación"
+              description="Condiciones y plazos para cancelar tu compra."
+              icon={<XCircle className="h-5 w-5" />}
+              href="/politicas/cancelacion"
+            />
+            <PoliticaCard
+              title="Política de Entrega"
+              description="Métodos, tiempos y seguimiento de envíos."
+              icon={<Truck className="h-5 w-5" />}
+              href="/politicas/entrega"
+            />
+            <PoliticaCard
+              title="Métodos de Pago"
+              description="Formas de pago disponibles y seguridad."
+              icon={<Info className="h-5 w-5" />}
+              href="/politicas/pago"
+            />
 
-        <Link href="/politicas/devolucion">
-          <Card className="hover:shadow-md transition-shadow cursor-pointer">
-            <CardContent className="p-6">
-              <div className="flex items-center mb-4">
-                <RotateCcw className="h-6 w-6 text-primary mr-2" />
-                <h2 className="text-lg font-semibold">Devolución</h2>
-              </div>
-              <p className="text-gray-700 text-sm">
-                Información sobre cómo proceder ante productos defectuosos o
-                errores en el envío.
-              </p>
-            </CardContent>
-          </Card>
-        </Link>
+            {/* Grupo: Privacidad */}
+            <PoliticaCard
+              title="Política de Privacidad"
+              description="Cómo manejamos y protegemos tus datos personales."
+              icon={<ShieldCheck className="h-5 w-5" />}
+              href="/politicas/privacidad"
+            />
+
+            {/* Grupo: Otros */}
+            <PoliticaCard
+              title="Política de Cookies"
+              description="Cómo usamos cookies y datos de navegación."
+              icon={<Cookie className="h-5 w-5" />}
+              href="/politicas/cookies"
+            />
+            <PoliticaCard
+              title="Preguntas Frecuentes (FAQ)"
+              description="Consultá respuestas a las dudas más comunes."
+              icon={<HelpCircle className="h-5 w-5" />}
+              href="/politicas/faq"
+            />
+          </section>
+        </main>
       </div>
     </div>
   );

@@ -4,7 +4,6 @@
 
 import { useSearchDropdown } from "@/hooks/busqueda/useSearchDropdown";
 import { Search, Loader2, Trash2 } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
 
 export default function SearchBar() {
   const {

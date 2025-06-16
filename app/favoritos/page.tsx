@@ -50,7 +50,7 @@ export default function FavoritosPage() {
             Aún no has añadido ningún producto a tus favoritos.
           </p>
           <Button asChild>
-            <Link href="/productos">Ver Productos</Link>
+            <Link href="/categoria/todos">Ver Productos</Link>
           </Button>
         </div>
       </div>

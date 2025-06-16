@@ -89,14 +89,6 @@ export const ProductDialog: React.FC<ProductDialogProps> = ({
       });
     }
 
-    if (productMaterials.length === 0) {
-      return toast({
-        title: "Error",
-        description: "Debes asignar al menos un material",
-        variant: "destructive",
-      });
-    }
-
     const orderedImages = productImages.map((img, index) => ({
       ...img,
       position: index,

@@ -17,12 +17,15 @@ import {
 } from "@/components/ui/card";
 import { useAuth } from "@/contexts/auth-context";
 import { useToast } from "@/components/ui/use-toast";
+import { formatPhoneNumber } from "@/lib/utils";
 
 export default function RegistroPage() {
   const [formData, setFormData] = useState({
     nombres: "",
     apellidos: "",
     email: "",
+    phone: "",
+    address: "",
     password: "",
     confirmPassword: "",
   });
@@ -37,7 +40,8 @@ export default function RegistroPage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const formattedValue = name === "phone" ? formatPhoneNumber(value) : value;
+    setFormData((prev) => ({ ...prev, [name]: formattedValue }));
   };
 
   const showError = (message: string) => {
@@ -48,10 +52,26 @@ export default function RegistroPage() {
     e.preventDefault();
     setIsLoading(true);
 
-    const { nombres, apellidos, email, password, confirmPassword } = formData;
+    const {
+      nombres,
+      apellidos,
+      email,
+      phone,
+      address,
+      password,
+      confirmPassword,
+    } = formData;
 
     if (!nombres || !apellidos || !email || !password || !confirmPassword) {
       showError("Todos los campos son requeridos");
+      setIsLoading(false);
+      return;
+    }
+
+    const rawPhone = phone.replace(/\D/g, ""); // solo números
+
+    if (rawPhone.length !== 8) {
+      showError("El número de teléfono debe tener exactamente 8 dígitos");
       setIsLoading(false);
       return;
     }
@@ -69,7 +89,14 @@ export default function RegistroPage() {
     }
 
     try {
-      await register({ nombres, apellidos, email, password });
+      await register({
+        nombres,
+        apellidos,
+        email,
+        phone: rawPhone,
+        address,
+        password,
+      });
 
       toast({
         title: "Registro exitoso",
@@ -87,14 +114,14 @@ export default function RegistroPage() {
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-50">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-3xl">
         <CardHeader className="space-y-1 text-center">
           <CardTitle className="text-2xl font-bold">Crear una cuenta</CardTitle>
           <CardDescription>Regístrate para comenzar a comprar</CardDescription>
         </CardHeader>
 
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="nombres">Nombres</Label>
@@ -133,7 +160,32 @@ export default function RegistroPage() {
               />
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2 col-span-2">
+              <Label htmlFor="telefono">Teléfono</Label>
+              <Input
+                id="phone"
+                name="phone"
+                type="tel"
+                placeholder="7865 9463"
+                value={formData.phone}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div className="space-y-2 col-span-2">
+              <Label htmlFor="direccion">Dirección</Label>
+              <Input
+                id="direccion"
+                name="address"
+                placeholder="Colonia San Benito, Calle los Robles #12, casa blanca con portón negro"
+                value={formData.address}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div className="space-y-2 col-span-2">
               <Label htmlFor="password">Contraseña</Label>
               <div className="relative">
                 <Input
@@ -156,7 +208,7 @@ export default function RegistroPage() {
               </div>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2 col-span-2">
               <Label htmlFor="confirmPassword">Confirmar Contraseña</Label>
               <div className="relative">
                 <Input
@@ -177,10 +229,11 @@ export default function RegistroPage() {
                 </button>
               </div>
             </div>
-
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Registrando..." : "Registrarse"}
-            </Button>
+            <div className="mt-6 col-span-2">
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? "Registrando..." : "Registrarse"}
+              </Button>
+            </div>
           </form>
         </CardContent>
 

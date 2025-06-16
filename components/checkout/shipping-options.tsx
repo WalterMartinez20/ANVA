@@ -1,10 +1,10 @@
 "use client";
 
-import type React from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { ChevronRight, Truck, Clock } from "lucide-react";
+import { ChevronRight, Clock, Store } from "lucide-react";
 import clsx from "clsx";
 
 interface ShippingOptionsProps {
@@ -13,20 +13,12 @@ interface ShippingOptionsProps {
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
 }
 
-interface Option {
-  value: string;
-  label: string;
-  description: string;
-  icon: React.ReactNode;
-  price: string;
-}
-
-const options: Option[] = [
+const options = [
   {
-    value: "standard",
-    label: "Retiro en tienda",
+    value: "store-pickup",
+    label: "Recoger en tienda",
     description: "Disponible para retiro en nuestra tienda principal",
-    icon: <Truck className="h-4 w-4 text-muted-foreground" />,
+    icon: <Store className="h-4 w-4 text-muted-foreground" />,
     price: "Gratis",
   },
   {
@@ -45,13 +37,7 @@ const options: Option[] = [
   },
 ];
 
-function ShippingOptionCard({
-  option,
-  selected,
-}: {
-  option: Option;
-  selected: boolean;
-}) {
+function ShippingOptionCard({ option, selected }: any) {
   return (
     <div
       className={clsx(
@@ -81,6 +67,24 @@ export function ShippingOptions({
   setShippingMethod,
   onSubmit,
 }: ShippingOptionsProps) {
+  // ✅ Asignar valor inicial si está vacío
+  useEffect(() => {
+    const saved = localStorage.getItem("savedShippingMethod");
+
+    if (saved) {
+      setShippingMethod(saved);
+    } else {
+      setShippingMethod(options[0].value);
+      localStorage.setItem("savedShippingMethod", options[0].value);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (shippingMethod) {
+      localStorage.setItem("savedShippingMethod", shippingMethod);
+    }
+  }, [shippingMethod]);
+
   return (
     <form
       onSubmit={onSubmit}

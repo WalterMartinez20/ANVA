@@ -14,7 +14,7 @@ model User {
   id        Int        @id @default(autoincrement())
   nombres   String
   apellidos String
-  email     String     @unique
+  email String @unique(map: "user_email_unique")
   password  String
   role      Role       @default(USER)
   createdAt DateTime   @default(now())
@@ -35,6 +35,10 @@ model User {
   reviewsCount Int       @default(0)
 
   addresses Address[]
+
+  // * Este @@map("user") le dice a Prisma que aunque tu modelo se llama User, en la base de datos la tabla real se llama user.
+  @@map("user")
+
 }
 
 model Product {
@@ -62,6 +66,8 @@ model Product {
   favorites        Favorite[]
   orderItems       OrderItem[]
   reviews          Review[]
+
+  @@map("product")
 }
 
 model ProductImage {
@@ -71,12 +77,15 @@ model ProductImage {
   productId Int
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
+
+  @@map("productimage")
+
 }
 
 // * Material pertenece a una categoría.
 model Material {
   id             Int                @id @default(autoincrement())
-  name        String            @unique
+  name String @unique(map: "material_name_unique")
   description    String?
   stock       Int               @default(0)
   unit   String?
@@ -86,14 +95,19 @@ model Material {
   products    ProductMaterial[]
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
+
+  @@map("material")
+
 }
 
 // * MaterialCategory define un tipo de grupo, como "Broches", "Mosquetones", etc.
 model MaterialCategory {
   id            Int                  @id @default(autoincrement())
-  nombre        String               @unique
+  nombre String @unique(map: "materialcategory_nombre_unique")
   propiedades   MaterialProperty[]   // Define qué propiedades tendrá esta categoría
   materiales    Material[]
+
+  @@map("materialcategory")
 }
 
 // * MaterialProperty define las propiedades esperadas por categoría, como "Color", "Tamaño", etc.
@@ -104,6 +118,8 @@ model MaterialProperty {
   categoria      MaterialCategory      @relation(fields: [categoriaId], references: [id])
   categoriaId    Int
   valores MaterialPropertyValue[]
+
+  @@map("materialproperty")
 }
 
 // * MaterialPropertyValue vincula un Material con cada una de sus propiedades, y guarda su valor.
@@ -114,6 +130,8 @@ model MaterialPropertyValue {
   propiedad  MaterialProperty @relation(fields: [propiedadId], references: [id])
   propiedadId Int
   valor      String     // Puede guardar cualquier tipo como string
+
+  @@map("materialpropertyvalue")
 }
 
 
@@ -125,7 +143,10 @@ model ProductMaterial {
   product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   material   Material @relation(fields: [materialId], references: [id], onDelete: Cascade)
 
-  @@unique([productId, materialId])
+  @@unique([productId, materialId], map: "product_material_unique")
+
+  @@map("productmaterial")
+
 }
 
 model Favorite {
@@ -136,7 +157,10 @@ model Favorite {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, productId])
+  @@unique([userId, productId], map: "favorite_user_product_unique")
+
+  @@map("favorite")
+
 }
 
 model Order {
@@ -163,6 +187,8 @@ model Order {
 
   // Relación con historial de estados
   statusHistory OrderStatusHistory[] // ← relación inversa
+
+  @@map("order")
 }
 
 model OrderItem {
@@ -173,6 +199,8 @@ model OrderItem {
   price     Float
   order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("orderitem")
 }
 
 model Payment {
@@ -185,6 +213,8 @@ model Payment {
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
   order     Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("payment")
 }
 
 model Review {
@@ -196,6 +226,8 @@ model Review {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("review")
 }
 
 model OrderStatusHistory {
@@ -205,18 +237,23 @@ model OrderStatusHistory {
   notes     String?
   createdAt DateTime    @default(now())
   order     Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("orderstatushistory")
 }
 
 model Category {
   id          Int       @id @default(autoincrement())
-  name        String    @unique
-  slug        String    @unique
+  name String @unique(map: "category_name_unique") // nuevo nombre de índice
+
+  slug String @unique(map: "category_slug_unique")
   description String?
 
   productsAsCategory Product[] @relation("MainCategory")
 
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+
+  @@map("category")
 }
 
 model Address {
@@ -228,6 +265,8 @@ model Address {
   isDefault Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@map("address")
 }
 
 enum Role {

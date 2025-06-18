@@ -4,11 +4,13 @@ import type React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Search, Loader2 } from "lucide-react";
+
 import { ProductTable } from "@/components/productos_admin/ProductTable";
 import { ProductDialog } from "@/components/productos_admin/productos_dialogo/ProductDialog";
-import { useAdminProductos } from "@/hooks/productos_admin/useAdminProductos";
 import HelpSection from "@/components/help/HelpSection";
 import TooltipInfoButton from "@/components/help/TooltipInfoButton";
+
+import { useAdminProductos } from "@/hooks/productos_admin/useAdminProductos";
 
 export default function AdminProductos() {
   const {

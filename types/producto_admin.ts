@@ -1,9 +1,5 @@
-export interface Material {
-  id: number;
-  name: string;
-  stock: number;
-  unit: string | null;
-}
+// types/producto_admin.ts
+import type { Material } from "@/types/material";
 
 export interface ProductMaterial {
   materialId: number;

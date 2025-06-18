@@ -21,10 +21,10 @@ export const DeactivateAccount = () => {
 
       toast({
         title: "Cuenta desactivada",
-        description: "Tu sesión ha sido cerrada. Serás redirigido...",
+        description: "Tu cuenta fue desactivada correctamente.",
       });
 
-      router.push("/goodbye?deactivated=1");
+      router.push("/"); // redirige a la página principal
     } catch {
       toast({
         title: "Error al desactivar cuenta",

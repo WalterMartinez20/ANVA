@@ -18,6 +18,9 @@ import {
   Loader2,
   Tags,
   UserCheck2,
+  FolderKanban,
+  Layers,
+  Archive,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import clsx from "clsx";
@@ -47,7 +50,7 @@ export default function AdminLayout({
 
   const menuItems = [
     {
-      title: "Dashboard",
+      title: "Inicio",
       icon: <LayoutDashboard className="h-5 w-5" />,
       href: "/admin",
     },
@@ -56,11 +59,7 @@ export default function AdminLayout({
       icon: <ShoppingBag className="h-5 w-5" />,
       href: "/admin/productos",
     },
-    // {
-    //   title: "Categorias",
-    //   icon: <Tags className="h-5 w-5" />,
-    //   href: "/admin/categorias",
-    // },
+    // {title: "Categorias", icon: <Tags className="h-5 w-5" />, href: "/admin/categorias",},
     {
       title: "Materiales",
       icon: <Boxes className="h-5 w-5" />,
@@ -76,6 +75,7 @@ export default function AdminLayout({
       icon: <Users className="h-5 w-5" />,
       href: "/admin/usuarios",
     },
+    // {title: "Inventario", icon: <FolderKanban className="h-5 w-5" />, href: "/admin/inventario",},
     {
       title: "Equipo de Desarrollo",
       icon: <UserCheck2 className="h-5 w-5" />,

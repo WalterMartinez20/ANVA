@@ -73,16 +73,49 @@ model ProductImage {
   createdAt DateTime @default(now())
 }
 
+// * Material pertenece a una categoría.
 model Material {
-  id          Int               @id @default(autoincrement())
+  id             Int                @id @default(autoincrement())
   name        String            @unique
-  description String?
+  description    String?
   stock       Int               @default(0)
-  unit        String? // Por ejemplo: metros, unidades, etc.
+  unit   String?
+  categoria      MaterialCategory   @relation(fields: [categoriaId], references: [id])
+  categoriaId    Int
+  propiedades    MaterialPropertyValue[]
+  products    ProductMaterial[]
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
-  products    ProductMaterial[]
 }
+
+// * MaterialCategory define un tipo de grupo, como "Broches", "Mosquetones", etc.
+model MaterialCategory {
+  id            Int                  @id @default(autoincrement())
+  nombre        String               @unique
+  propiedades   MaterialProperty[]   // Define qué propiedades tendrá esta categoría
+  materiales    Material[]
+}
+
+// * MaterialProperty define las propiedades esperadas por categoría, como "Color", "Tamaño", etc.
+model MaterialProperty {
+  id             Int                   @id @default(autoincrement())
+  nombre         String                // Ej: "Color", "Tamaño"
+  tipo           String                // Ej: "string", "number", "boolean", etc.
+  categoria      MaterialCategory      @relation(fields: [categoriaId], references: [id])
+  categoriaId    Int
+  valores MaterialPropertyValue[]
+}
+
+// * MaterialPropertyValue vincula un Material con cada una de sus propiedades, y guarda su valor.
+model MaterialPropertyValue {
+  id         Int        @id @default(autoincrement())
+  material   Material   @relation(fields: [materialId], references: [id])
+  materialId Int
+  propiedad  MaterialProperty @relation(fields: [propiedadId], references: [id])
+  propiedadId Int
+  valor      String     // Puede guardar cualquier tipo como string
+}
+
 
 model ProductMaterial {
   id         Int      @id @default(autoincrement())

@@ -15,7 +15,7 @@ import {
   Shield,
   User,
   Edit,
-  Trash,
+  Trash2,
   CheckCircle,
   XCircle,
   EyeOff,
@@ -224,7 +224,7 @@ export default function UsersTable({
                         className="flex items-center gap-2 text-red-600 hover:bg-red-50"
                         onClick={() => onDelete(user.id)}
                       >
-                        <Trash className="h-4 w-4" />
+                        <Trash2 className="h-4 w-4" />
                         <span>Eliminar</span>
                       </DropdownMenuItem>
                     </DropdownMenuContent>

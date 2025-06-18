@@ -47,7 +47,7 @@ export default function AdminDashboardPage() {
       {/* Título + selector de tiempo */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex items-center gap-2">
-          <h1 className="text-2xl font-bold">Dashboard</h1>
+          <h1 className="text-2xl font-bold">Panel de Control</h1>
           <TooltipInfoButton content="Este panel te permite visualizar el rendimiento de tu tienda: ventas, pedidos, productos y clientes." />
         </div>
         <Select

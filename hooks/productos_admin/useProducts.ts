@@ -1,15 +1,13 @@
 /*
-📌 Responsabilidad: Lógica para cargar productos y materiales desde la API.
+* Responsabilidad: Lógica para cargar productos y materiales desde la API.
 
-✔️ Qué hace:
+* Usa useEffect para cargar /api/products y /api/materials.
 
-Usa useEffect para cargar /api/products y /api/materials.
+* Devuelve products, materials, isLoading, y sus setters.
 
-Devuelve products, materials, isLoading, y sus setters.
+* Separa la lógica de carga del componente.
 
-🔁 Separa la lógica de carga del componente.
-
- carga productos y materiales
+* Carga productos y materiales
 */
 
 import { useEffect, useState } from "react";
@@ -35,7 +33,7 @@ export function useProducts() {
     const fetchData = async () => {
       try {
         const res = await fetch("/api/products");
-        const matRes = await fetch("/api/materials");
+        const matRes = await fetch("/api/admin/materials");
 
         if (!res.ok || !matRes.ok) {
           throw new Error("Error al cargar productos o materiales");

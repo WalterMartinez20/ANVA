@@ -1,16 +1,11 @@
 /*
-📌 Responsabilidad: Manejo de estado para el formulario de producto (crear/editar).
+* Responsabilidad: Manejo de estado para el formulario de producto (crear/editar).
 
-✔️ Qué hace:
+* Qué hace: Maneja el estado formData, productImages, productMaterials, activeTab.
 
-Maneja el estado formData, productImages, productMaterials, activeTab.
+* Provee funciones como resetForm() y loadProduct(product).
 
-Provee funciones como resetForm() y loadProduct(product).
-
-🔁 Encapsula la lógica del formulario para evitar usar múltiples useState.
-
-manejo del formulario
-
+* Encapsula la lógica del formulario para evitar usar múltiples useState.
 */
 
 import { useState } from "react";

@@ -9,13 +9,13 @@ function parseId(id: string) {
 
 export async function GET(
   _req: NextRequest,
-  context: { params?: { id?: string } }
+  context: any // usar 'any' o 'Record<string, any>' evita problemas con el proxy
 ) {
   const { error, status } = await requireAdmin();
   if (error) return NextResponse.json({ error }, { status });
 
-  const { id: rawId } = context.params ?? {};
-  const id = parseId(rawId ?? "");
+  const rawId = context?.params?.id;
+  const id = parseInt(rawId ?? "", 10);
   if (!id) {
     return NextResponse.json({ error: "ID inválido" }, { status: 400 });
   }
@@ -55,7 +55,7 @@ export async function PUT(
   if (error) return NextResponse.json({ error }, { status });
 
   const { id: rawId } = context.params ?? {};
-  const id = parseId(rawId ?? "");
+  const id = parseInt(rawId ?? "");
   if (!id) {
     return NextResponse.json({ error: "ID inválido" }, { status: 400 });
   }
@@ -70,11 +70,37 @@ export async function PUT(
       propiedades = [],
     } = await request.json();
 
-    if (!name || typeof name !== "string") {
-      return NextResponse.json({ error: "Nombre inválido" }, { status: 400 });
+    // Validación
+    for (const p of propiedades) {
+      if (typeof p.propiedadId !== "number" || typeof p.valor !== "string") {
+        return NextResponse.json(
+          { error: "Propiedades mal formateadas." },
+          { status: 400 }
+        );
+      }
+
+      if (p.propiedadId < 0 && (!p.nombre || typeof p.nombre !== "string")) {
+        return NextResponse.json(
+          { error: "Propiedad nueva sin nombre válido." },
+          { status: 400 }
+        );
+      }
+
+      if (p.propiedadId >= 0 && "nombre" in p) {
+        return NextResponse.json(
+          { error: "Propiedad existente no debe incluir nombre." },
+          { status: 400 }
+        );
+      }
     }
 
-    const existing = await prisma.material.findUnique({ where: { id } });
+    const existing = await prisma.material.findUnique({
+      where: { id },
+      include: {
+        propiedades: true,
+      },
+    });
+
     if (!existing) {
       return NextResponse.json(
         { error: "Material no encontrado" },
@@ -82,6 +108,40 @@ export async function PUT(
       );
     }
 
+    // ------------------------------------
+    // 1. Crear propiedades nuevas si vienen con propiedadId < 0
+    // ------------------------------------
+    const nuevasPropiedades = propiedades.filter((p: any) => p.propiedadId < 0);
+    const propiedadesFinal: { propiedadId: number; valor: string }[] = [];
+
+    for (const p of nuevasPropiedades) {
+      const nueva = await prisma.materialProperty.create({
+        data: {
+          nombre: p.nombre.trim(),
+          tipo: "string",
+          categoriaId: categoriaId ?? existing.categoriaId ?? 1,
+        },
+      });
+      propiedadesFinal.push({ propiedadId: nueva.id, valor: p.valor });
+    }
+
+    // ------------------------------------
+    // 2. Agregar propiedades existentes
+    // ------------------------------------
+    for (const p of propiedades.filter((p: any) => p.propiedadId >= 0)) {
+      propiedadesFinal.push({ propiedadId: p.propiedadId, valor: p.valor });
+    }
+
+    // ------------------------------------
+    // 3. Determinar qué propiedades eliminar (fueron quitadas)
+    // ------------------------------------
+    const idsEnviado = propiedadesFinal.map((p) => p.propiedadId);
+    const idsExistentes = existing.propiedades.map((p) => p.propiedadId);
+    const idsAEliminar = idsExistentes.filter((id) => !idsEnviado.includes(id));
+
+    // ------------------------------------
+    // 4. Actualizar el material
+    // ------------------------------------
     await prisma.material.update({
       where: { id },
       data: {
@@ -91,13 +151,10 @@ export async function PUT(
         unit: unit ?? existing.unit,
         categoriaId: categoriaId ?? existing.categoriaId,
         propiedades: {
-          deleteMany: {},
-          create: propiedades.map(
-            (p: { propiedadId: number; valor: string }) => ({
-              propiedadId: p.propiedadId,
-              valor: p.valor,
-            })
-          ),
+          deleteMany: {
+            propiedadId: { in: idsAEliminar },
+          },
+          create: propiedadesFinal,
         },
       },
     });
@@ -121,43 +178,55 @@ export async function PUT(
 }
 
 export async function DELETE(
-  _req: NextRequest,
-  context: { params?: { id?: string } }
+  request: Request,
+  context: any // 👈 Este debe ser 'any' o sin desestructurar para evitar el bug
 ) {
-  const { error, status } = await requireAdmin();
-  if (error) return NextResponse.json({ error }, { status });
+  // ✅ Accedemos así para evitar el error
+  const rawId = context?.params?.id;
+  const id = parseInt(rawId, 10);
 
-  const { id: rawId } = context.params ?? {};
-  const id = parseId(rawId ?? "");
-  if (!id) {
+  if (isNaN(id)) {
     return NextResponse.json({ error: "ID inválido" }, { status: 400 });
   }
 
   try {
-    const exists = await prisma.material.findUnique({ where: { id } });
-    if (!exists) {
-      return NextResponse.json(
-        { error: "Material no encontrado" },
-        { status: 404 }
-      );
-    }
-
-    const linked = await prisma.productMaterial.findFirst({
+    // Validar relaciones
+    const count = await prisma.productMaterial.count({
       where: { materialId: id },
     });
-    if (linked) {
+
+    if (count > 0) {
       return NextResponse.json(
-        { error: "No se puede eliminar: material en uso" },
+        {
+          error: `Este material está siendo utilizado en ${count} producto${
+            count > 1 ? "s" : ""
+          }. Elimínalo de los productos antes de intentar borrarlo.`,
+        },
         { status: 400 }
       );
     }
 
-    await prisma.material.delete({ where: { id } });
+    // Eliminar el material
+    await prisma.material.delete({
+      where: { id },
+    });
+
     return NextResponse.json({ success: true });
-  } catch (err) {
-    console.error("DELETE /materials/[id] error:", err);
+  } catch (err: any) {
+    console.error("Error eliminando material:", err);
+
+    if (err.code === "P2003") {
+      return NextResponse.json(
+        {
+          error:
+            "Este material está en uso y no puede ser eliminado. Elimínalo de los productos relacionados primero.",
+        },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json(
-      { error: "Error al eliminar material" },
+      { error: "Error inesperado al intentar eliminar el material." },
       { status: 500 }
     );
   }

@@ -202,7 +202,7 @@ export default function CheckoutPage() {
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-xl font-semibold">Método de Envío</h2>
                   <Button
-                    variant="ghost"
+                    variant="default"
                     onClick={() => setCurrentStep("information")}
                     className="h-8 text-sm"
                   >
@@ -243,7 +243,7 @@ export default function CheckoutPage() {
                       : "Confirmar Pedido (Transferencia Bancaria)"}
                   </h2>
                   <Button
-                    variant="ghost"
+                    variant="default"
                     onClick={() => setCurrentStep("shipping")}
                     className="h-8 text-sm"
                   >

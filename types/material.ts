@@ -15,6 +15,7 @@ export interface Category {
 export interface PropertyValue {
   propiedadId: number;
   valor: string;
+  nombre?: string;
 }
 
 export interface Material {

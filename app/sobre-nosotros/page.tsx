@@ -26,7 +26,7 @@ export default function SobreNosotrosPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+        {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
           <Card>
             <CardContent className="p-6">
               <h3 className="text-xl font-semibold mb-4 flex items-center">
@@ -55,7 +55,7 @@ export default function SobreNosotrosPage() {
               </p>
             </CardContent>
           </Card>
-        </div>
+        </div> */}
 
         <div className="mb-12">
           <h2 className="text-2xl font-semibold mb-6">Nuestros Valores</h2>

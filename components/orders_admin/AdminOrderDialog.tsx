@@ -26,7 +26,13 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "@/components/ui/use-toast";
-import { formatDate, formatPrice, getPaymentLabel } from "@/lib/utils";
+import {
+  formatDate,
+  formatPrice,
+  getPaymentLabel,
+  formatPhoneNumber,
+} from "@/lib/utils";
+
 import { useState, useEffect } from "react";
 import OrderProgress from "@/components/orders/OrderProgress";
 import StatusBadge from "@/components/orders/StatusBadge";
@@ -205,7 +211,9 @@ export default function AdminOrderDialog({
                     </p>
                     <p>
                       <strong>Teléfono:</strong>{" "}
-                      {order.phone || "No especificado"}
+                      {order.phone
+                        ? formatPhoneNumber(order.phone)
+                        : "No especificado"}
                     </p>
                     {order.notes && (
                       <p>

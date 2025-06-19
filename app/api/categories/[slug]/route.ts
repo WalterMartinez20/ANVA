@@ -56,9 +56,8 @@ export async function GET(
         take: limit,
         include: {
           images: true,
-          category: {
-            select: { name: true },
-          },
+          category: { select: { name: true } },
+          materials: { include: { material: true } },
         },
       }),
       prisma.product.count({ where }),
@@ -69,8 +68,11 @@ export async function GET(
       id: p.id,
       name: p.name,
       price: p.price,
-      category: p.category?.name || "",
+      stock: p.stock,
+      colors: p.colors,
       images: p.images,
+      materials: p.materials,
+      category: p.category?.name || "",
     }));
 
     return NextResponse.json({

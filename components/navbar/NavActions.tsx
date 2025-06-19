@@ -104,7 +104,9 @@ export default function NavActions({ setMobileMenuOpen }: NavActionsProps) {
 
           {/* 👤 Usuario */}
           {isLoading ? (
-            <Skeleton className="w-10 h-10 rounded-full animate-pulse bg-gray-200" />
+            <div className="flex items-center gap-2">
+              <Skeleton className="w-10 h-10 rounded-full" />
+            </div>
           ) : isAuthenticated ? (
             <UserDropdown />
           ) : (

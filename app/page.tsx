@@ -1,3 +1,5 @@
+"use client";
+
 import ProductGrid from "@/components/home/product-grid";
 import HeroSlider from "@/components/home/hero-slider";
 import WhyChooseUs from "@/components/home/why-choose-us";
@@ -6,10 +8,17 @@ import SocialPanel from "@/components/home/SocialPanel";
 import FeaturedProducts from "@/components/productos/featured-products";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function Home() {
+  // const { toast } = useToast(); // ← HOOK DEL TOAST
+  // const handleClick = () => {toast({title: "Hola 👋",description: "Este es un mensaje de prueba desde el botón",});};
+
   return (
     <>
+      {/* Botón para disparar toast */}
+      {/* <div className="text-center mt-6"><Button onClick={handleClick}>Mostrar toast</Button></div> */}
+
       {/* Redes sociales */}
       <SocialPanel />
 

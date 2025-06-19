@@ -48,7 +48,7 @@ export default function UserDropdown() {
           <DropdownMenuItem asChild>
             <Link
               href="/perfil"
-              className="cursor-pointer flex items-center text-gray-700 hover:!bg-[#D3B29A]/40 transition-colors" //hover:bg-[#D3B29A]/40
+              className="group cursor-pointer flex items-center bg-white hover:bg-primary/10 text-gray-700 hover:text-primary transition-colors"
             >
               <User className="mr-2 h-4 w-4 text-black" />
               <span>Mi Perfil</span>
@@ -59,7 +59,7 @@ export default function UserDropdown() {
             <DropdownMenuItem asChild>
               <Link
                 href="/admin"
-                className="cursor-pointer flex items-center text-gray-700 hover:!bg-[#D3B29A]/40 transition-colors"
+                className="group cursor-pointer flex items-center bg-white hover:bg-primary/10 text-gray-700 hover:text-primary transition-colors"
               >
                 <Settings className="mr-2 h-4 w-4 text-black" />
                 <span>Administración</span>
@@ -71,7 +71,7 @@ export default function UserDropdown() {
 
           <DropdownMenuItem
             onClick={logout}
-            className="cursor-pointer text-red-500 hover:!bg-[#D3B29A]/40 transition-colors"
+            className="group cursor-pointer flex items-center bg-white hover:bg-red-100 text-red-500 hover:text-red-600 transition-colors"
           >
             <LogOut className="mr-2 h-4 w-4" />
             <span>Cerrar Sesión</span>

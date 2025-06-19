@@ -48,7 +48,7 @@ export default function EquipoDesarrolloPage() {
     <div className="container mx-auto px-4 py-12">
       <div className="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
         <div className="flex items-center gap-3">
-          <h1 className="text-4xl font-bold text-gray-800">
+          <h1 className="text-4xl font-bold text-primary">
             Equipo de Desarrollo
           </h1>
           <TooltipInfoButton content="Aquí puedes conocer al equipo encargado del desarrollo del sistema." />
@@ -108,6 +108,56 @@ export default function EquipoDesarrolloPage() {
             </Card>
           );
         })}
+      </div>
+
+      {/* Tecnologías utilizadas */}
+      <div className="mt-20">
+        <h2 className="text-4xl font-bold text-primary mb-10 flex items-center gap-2">
+          Tecnologías Utilizadas
+        </h2>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+          {[
+            {
+              name: "Next.js",
+              logo: "https://raw.githubusercontent.com/devicons/devicon/master/icons/nextjs/nextjs-original.svg",
+            },
+            {
+              name: "React",
+              logo: "https://raw.githubusercontent.com/devicons/devicon/master/icons/react/react-original.svg",
+            },
+            {
+              name: "TypeScript",
+              logo: "https://raw.githubusercontent.com/devicons/devicon/master/icons/typescript/typescript-original.svg",
+            },
+            {
+              name: "Tailwind CSS",
+              logo: "https://upload.wikimedia.org/wikipedia/commons/d/d5/Tailwind_CSS_Logo.svg",
+            },
+            {
+              name: "Prisma",
+              logo: "https://raw.githubusercontent.com/devicons/devicon/master/icons/prisma/prisma-original.svg",
+            },
+            {
+              name: "MySQL",
+              logo: "https://raw.githubusercontent.com/devicons/devicon/master/icons/mysql/mysql-original.svg",
+            },
+          ].map((tech, i) => (
+            <Card
+              key={i}
+              className="p-4 flex flex-col items-center justify-center text-center shadow-md hover:shadow-lg transition rounded-xl border border-gray-200 bg-white"
+            >
+              <div className="w-16 h-16 mb-4 flex items-center justify-center">
+                <img
+                  src={tech.logo}
+                  alt={tech.name}
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              <h3 className="text-sm font-medium text-gray-900">{tech.name}</h3>
+            </Card>
+          ))}
+        </div>
       </div>
     </div>
   );

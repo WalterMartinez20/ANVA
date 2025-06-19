@@ -22,7 +22,7 @@ import {
 
 import { Loader2, ShoppingBag, CreditCard, Truck, History } from "lucide-react";
 
-import { formatDate } from "@/lib/utils";
+import { formatDate, formatPhoneNumber } from "@/lib/utils";
 import OrderProgress from "@/components/orders/OrderProgress";
 import StatusBadge from "./StatusBadge";
 import type { Order } from "@/types/order";
@@ -103,7 +103,9 @@ export default function OrderDialog({
                   </p>
                   <p>
                     <strong>Teléfono:</strong>{" "}
-                    {order.phone || "No especificado"}
+                    {order.phone
+                      ? formatPhoneNumber(order.phone)
+                      : "No especificado"}
                   </p>
                   {order.notes && (
                     <p>
@@ -246,7 +248,7 @@ export default function OrderDialog({
 
           {/* Footer */}
           <DialogFooter className="flex justify-between">
-            {(order.status === "PENDING" || order.status === "PROCESSING") && (
+            {/* {(order.status === "PENDING" || order.status === "PROCESSING") && (
               <Button
                 variant="destructive"
                 onClick={() => onCancelOrder(order.id)}
@@ -262,7 +264,7 @@ export default function OrderDialog({
                   "Cancelar Pedido"
                 )}
               </Button>
-            )}
+            )} */}
             <Button onClick={onClose}>Cerrar</Button>
           </DialogFooter>
         </div>

@@ -11,23 +11,23 @@ import {
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/use-toast";
 import { Loader2 } from "lucide-react";
 import {
   Product,
   ProductMaterial,
   ProductImage,
-  Material,
   ProductFormData,
 } from "@/types/producto_admin";
-import { toast } from "@/components/ui/use-toast";
+import { Material } from "@/types/material";
 
 import { ProductGeneralTab } from "./ProductGeneralTab";
 import { ProductImagesTab } from "./ProductImagesTab";
 import { ProductMaterialsTab } from "./ProductMaterialsTab";
 import type { ProductTab } from "@/hooks/productos_admin/useProductForm";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 import { useForm, FormProvider } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { productSchema } from "@/lib/schemas/productSchema";
 
 interface ProductDialogProps {

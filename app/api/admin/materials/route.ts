@@ -41,6 +41,32 @@ export async function POST(request: NextRequest) {
       propiedades = [],
     } = await request.json();
 
+    // Validar estructura de propiedades
+    for (const p of propiedades) {
+      if (typeof p.propiedadId !== "number" || typeof p.valor !== "string") {
+        return NextResponse.json(
+          { error: "Propiedades mal formateadas." },
+          { status: 400 }
+        );
+      }
+
+      if (p.propiedadId < 0) {
+        if (!p.nombre || typeof p.nombre !== "string" || !p.nombre.trim()) {
+          return NextResponse.json(
+            { error: "Propiedad nueva sin nombre válido." },
+            { status: 400 }
+          );
+        }
+      } else {
+        if ("nombre" in p) {
+          return NextResponse.json(
+            { error: "Propiedad existente no debe incluir nombre." },
+            { status: 400 }
+          );
+        }
+      }
+    }
+
     if (!name || typeof name !== "string") {
       return NextResponse.json(
         { error: "El nombre es obligatorio" },
@@ -63,6 +89,30 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // 1. Separar propiedades nuevas (id < 0) y existentes
+    const nuevasPropiedades = propiedades.filter(
+      (p: any) => p.propiedadId < 0 && p.nombre
+    );
+    const propiedadesFinal: { propiedadId: number; valor: string }[] = [];
+
+    // 2. Crear nuevas propiedades en la tabla Propiedad
+    for (const p of nuevasPropiedades) {
+      const nueva = await prisma.materialProperty.create({
+        data: {
+          nombre: p.nombre.trim(),
+          tipo: "string", // asunción
+          categoriaId,
+        },
+      });
+      propiedadesFinal.push({ propiedadId: nueva.id, valor: p.valor });
+    }
+
+    // 3. Agregar las propiedades ya existentes
+    for (const p of propiedades.filter((p: any) => p.propiedadId >= 0)) {
+      propiedadesFinal.push({ propiedadId: p.propiedadId, valor: p.valor });
+    }
+
+    // 4. Crear el material
     const material = await prisma.material.create({
       data: {
         name: name.trim(),
@@ -71,12 +121,7 @@ export async function POST(request: NextRequest) {
         unit: unit || null,
         categoriaId,
         propiedades: {
-          create: propiedades.map(
-            (p: { propiedadId: number; valor: string }) => ({
-              propiedadId: p.propiedadId,
-              valor: p.valor,
-            })
-          ),
+          create: propiedadesFinal,
         },
       },
       include: {

@@ -89,9 +89,9 @@ export default function OrderTable({
                       aria-label={`Ver detalles del pedido #${order.id}`}
                     >
                       <Eye className="h-4 w-4" />
-                      <span className="hidden sm:inline">Ver</span>
+                      <span className="hidden sm:inline">Ver Detalles</span>
                     </Button>
-                    {(order.status === "PENDING" ||
+                    {/* {(order.status === "PENDING" ||
                       order.status === "PROCESSING") && (
                       <Button
                         variant="outline"
@@ -104,7 +104,7 @@ export default function OrderTable({
                         <XCircle className="h-4 w-4" />
                         <span className="hidden sm:inline">Cancelar</span>
                       </Button>
-                    )}
+                    )} */}
                   </div>
                 </TableCell>
               </TableRow>

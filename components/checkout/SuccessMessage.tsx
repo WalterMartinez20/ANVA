@@ -33,16 +33,11 @@ export function SuccessMessage({ order }: Props) {
   useEffect(() => {
     window.scrollTo(0, 0);
 
-    if (secondsRemaining <= 0) {
-      router.push("/pedidos");
-      return;
-    }
-
     const countdown = setInterval(() => {
       setSecondsRemaining((prev) => {
         if (prev <= 1) {
-          clearInterval(countdown); // detener intervalo cuando llega a 0
-          router.push("/pedidos"); // redirigir inmediatamente
+          clearInterval(countdown);
+          router.push("/pedidos"); // Esto está dentro del intervalo
           return 0;
         }
         return prev - 1;
@@ -50,7 +45,7 @@ export function SuccessMessage({ order }: Props) {
     }, 1000);
 
     return () => clearInterval(countdown);
-  }, [secondsRemaining, router]);
+  }, [router]); // sin incluir secondsRemaining como dependencia
 
   return (
     <div className="container max-w-2xl mx-auto px-4 py-12">

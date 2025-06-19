@@ -55,16 +55,19 @@ export default function LoginPage() {
         description: "Bienvenido de nuevo",
       });
 
-      // ✅ Redirección según rol
+      // Redirección según rol
       if (loggedUser.role === "ADMIN") {
         router.push("/admin");
       } else {
         router.push("/perfil");
       }
+
+      // * Mantenemos isLoading true hasta que redirección esté disparada
+      // Esperar un poco ayuda a que la animación no se corte de golpe
+      setTimeout(() => setIsLoading(false), 500);
     } catch (error: any) {
       showError("Credenciales incorrectas. Intenta nuevamente.");
-    } finally {
-      setIsLoading(false);
+      setIsLoading(false); // solo liberamos en caso de error
     }
   };
 
@@ -115,7 +118,7 @@ export default function LoginPage() {
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Contraseña</Label>
                 <Link
-                  href="/recuperar-password"
+                  href="/recuperar-pass"
                   className="text-sm text-primary hover:underline"
                 >
                   ¿Olvidaste tu contraseña?

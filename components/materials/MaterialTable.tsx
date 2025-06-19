@@ -6,15 +6,22 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ArrowUpDown, Edit, MoreHorizontal, Trash2 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ArrowUpDown, Edit, MoreHorizontal, Trash2 } from "lucide-react";
 
 import type { Material } from "@/types/material";
 
@@ -78,12 +85,24 @@ export default function MaterialTable({
               <TableCell>{material.stock}</TableCell>
               <TableCell>{material.unit}</TableCell>
               <TableCell>{material.categoria?.nombre}</TableCell>
-              <TableCell className="space-y-1">
+              <TableCell className="flex flex-wrap gap-2 py-3">
                 {material.propiedades?.length > 0 ? (
                   material.propiedades.map((p) => (
-                    <Badge key={p.propiedadId} className="mr-1">
-                      {p.propiedad.nombre}: {p.valor}
-                    </Badge>
+                    <TooltipProvider key={p.propiedadId}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="inline-flex items-center gap-1 rounded-md bg-primary text-white px-3 py-1.5 text-xs font-medium shadow hover:bg-primary/90 transition-colors duration-200 cursor-help">
+                            {p.propiedad.nombre}: {p.valor}
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <span className="text-sm text-muted-foreground max-w-xs block">
+                            Propiedad definida para este material. Puedes
+                            editarla desde el formulario.
+                          </span>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   ))
                 ) : (
                   <span className="text-muted-foreground text-sm">

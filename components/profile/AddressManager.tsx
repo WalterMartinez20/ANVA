@@ -3,8 +3,9 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Pencil, Trash2, Check, X, Star } from "lucide-react";
+import { Pencil, Trash2, Check, X, Star, MapPin } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
+import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/auth-context";
 
@@ -124,11 +125,14 @@ export function AddressManager({ onDefaultChange }: AddressManagerProps) {
   }
 
   return (
-    <div className="mt-10 space-y-6">
-      <h3 className="text-xl font-semibold">Direcciones</h3>
+    <Card className="p-6 shadow-lg border bg-white w-full space-y-6">
+      <div className="flex items-center gap-3">
+        <MapPin className="text-primary" />
+        <h2 className="text-xl font-semibold text-gray-900">Direcciones</h2>
+      </div>
 
       {/* Nueva dirección */}
-      <div className="bg-white shadow-md border p-6 rounded-md space-y-4">
+      <div className="space-y-4">
         <h4 className="text-md font-medium text-gray-800">
           Agregar nueva dirección
         </h4>
@@ -154,7 +158,7 @@ export function AddressManager({ onDefaultChange }: AddressManagerProps) {
         </div>
       </div>
 
-      {/* Lista */}
+      {/* Lista de direcciones */}
       {addresses.length === 0 ? (
         <p className="text-muted-foreground text-sm">
           No tienes direcciones registradas.
@@ -245,6 +249,6 @@ export function AddressManager({ onDefaultChange }: AddressManagerProps) {
           </div>
         ))
       )}
-    </div>
+    </Card>
   );
 }

@@ -181,29 +181,31 @@ export default function CategorySidebar() {
                 </span>
               </Link>
             </Button>
-            {categories.map((cat) => (
-              <Button
-                key={cat.slug}
-                variant="ghost"
-                className="w-full justify-between pl-4 font-normal"
-                asChild
-              >
-                <Link href={`/categoria/${cat.slug}`}>
-                  <span>{cat.name}</span>
-                  <span className="text-muted-foreground text-sm">
-                    {cat.count}
-                  </span>
-                </Link>
-              </Button>
-            ))}
+            {categories
+              .filter((cat) => cat.count > 0)
+              .map((cat) => (
+                <Button
+                  key={cat.slug}
+                  variant="ghost"
+                  className="w-full justify-between pl-4 font-normal"
+                  asChild
+                >
+                  <Link href={`/categoria/${cat.slug}`}>
+                    <span>{cat.name}</span>
+                    <span className="text-muted-foreground text-sm">
+                      {cat.count}
+                    </span>
+                  </Link>
+                </Button>
+              ))}
           </div>
         )}
       </div>
 
-      <Separator />
+      {/* <Separator /> */}
 
       {/* PRECIO */}
-      <div>
+      {/* <div>
         <Button
           variant="ghost"
           className="w-full justify-between p-2 font-medium text-lg"
@@ -279,12 +281,12 @@ export default function CategorySidebar() {
             </div>
           </div>
         )}
-      </div>
+      </div> */}
 
-      <Separator />
+      {/* <Separator /> */}
 
       {/* VALORACIÓN */}
-      <div>
+      {/* <div>
         <Button
           variant="ghost"
           onClick={() => toggleSection("rating")}
@@ -330,7 +332,7 @@ export default function CategorySidebar() {
             ))}
           </div>
         )}
-      </div>
+      </div> */}
     </div>
   );
 }

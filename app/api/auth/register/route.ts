@@ -38,6 +38,7 @@ export async function POST(req: NextRequest) {
         phone,
         address,
         role: Role.USER,
+        isActive: true,
       },
       select: {
         id: true,
@@ -49,6 +50,7 @@ export async function POST(req: NextRequest) {
         role: true,
         createdAt: true,
         updatedAt: true,
+        isActive: true, // Lo incluimos también para usarlo en el frontend
       },
     });
 

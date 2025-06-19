@@ -15,6 +15,7 @@ import type {
   FormData,
   MaterialWithProps,
   GroupedMaterials,
+  Category,
 } from "@/types/material";
 
 export default function AdminMateriales() {
@@ -25,6 +26,7 @@ export default function AdminMateriales() {
     null
   );
   const [expandedGroups, setExpandedGroups] = useState<number[]>([]);
+  const [categorias, setCategorias] = useState<Category[]>([]);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -58,6 +60,25 @@ export default function AdminMateriales() {
     };
 
     fetchMaterials();
+  }, []);
+
+  useEffect(() => {
+    const fetchCategorias = async () => {
+      try {
+        const res = await fetch("/api/admin/materials/material-category");
+        if (!res.ok) throw new Error("Error al obtener categorías");
+        const data = await res.json();
+        setCategorias(data.categories || []);
+      } catch (err) {
+        toast({
+          title: "Error",
+          description: "No se pudieron cargar las categorías.",
+          variant: "destructive",
+        });
+      }
+    };
+
+    fetchCategorias();
   }, []);
 
   const groupedMaterials: GroupedMaterials = materials.reduce(
@@ -146,6 +167,65 @@ export default function AdminMateriales() {
     }
   };
 
+  const handleSave = async (data: FormData) => {
+    setIsSubmitting(true);
+    try {
+      const isEdit = !!editingMaterial;
+      const url = isEdit
+        ? `/api/admin/materials/${editingMaterial!.id}`
+        : "/api/admin/materials";
+
+      const method = isEdit ? "PUT" : "POST";
+
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      const result = await res.json();
+
+      if (!res.ok) throw new Error(result.error || "Error al guardar");
+
+      toast({
+        title: isEdit ? "Material actualizado" : "Material creado",
+        variant: "default",
+      });
+
+      // Actualizar la lista
+      const updatedMaterial = result.material;
+
+      setMaterials((prev) => {
+        if (isEdit) {
+          return prev.map((mat) =>
+            mat.id === updatedMaterial.id ? updatedMaterial : mat
+          );
+        } else {
+          return [...prev, updatedMaterial];
+        }
+      });
+
+      setIsDialogOpen(false);
+      setEditingMaterial(null);
+      setFormData({
+        name: "",
+        description: "",
+        stock: 0,
+        unit: "",
+        categoriaId: null,
+        propiedades: [],
+      });
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: err instanceof Error ? err.message : "Error desconocido",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const filteredGroupedMaterials = Object.entries(groupedMaterials).reduce(
     (acc: GroupedMaterials, [catId, { categoryName, materials }]) => {
       const filtered = (materials as Material[]).filter((mat) => {
@@ -215,17 +295,18 @@ export default function AdminMateriales() {
             )}
           </div>
         )
+      )}{" "}
+      {categorias && (
+        <MaterialDialog
+          open={isDialogOpen}
+          onOpenChange={setIsDialogOpen}
+          formData={formData}
+          setFormData={setFormData}
+          onSave={handleSave}
+          categorias={categorias}
+          isEditing={!!editingMaterial}
+        />
       )}
-
-      <MaterialDialog
-        open={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
-        formData={formData}
-        setFormData={setFormData}
-        onSubmit={() => {}}
-        isSubmitting={isSubmitting}
-        editingMaterial={!!editingMaterial}
-      />
     </div>
   );
 }

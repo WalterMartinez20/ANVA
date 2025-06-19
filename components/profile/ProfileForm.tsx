@@ -4,7 +4,7 @@
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Mail, MapPin, Phone } from "lucide-react";
+import { Mail, MapPin, Phone, User } from "lucide-react";
 import { formatPhoneNumber } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 
@@ -26,48 +26,41 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
   handleInputChange,
 }) => {
   return (
-    <Card className="shadow-md border border-gray-100 bg-white rounded-xl p-6">
+    <Card className="p-6 shadow-lg border bg-white w-full space-y-6">
+      <div className="flex items-center gap-3">
+        <User className="text-primary" />
+        <h2 className="text-xl font-semibold text-gray-900">
+          Información personal
+        </h2>
+      </div>
+
       <div className="space-y-6">
         {/* Nombres y Apellidos */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <Label
-              htmlFor="nombres"
-              className="text-sm font-medium text-gray-700"
-            >
-              Nombre(s)
-            </Label>
+            <Label htmlFor="nombres">Nombre(s)</Label>
             <Input
               id="nombres"
               value={profile.nombres}
               onChange={(e) => handleInputChange("nombres", e.target.value)}
               placeholder="Ingresa tu nombre"
-              className="mt-1"
             />
           </div>
           <div>
-            <Label
-              htmlFor="apellidos"
-              className="text-sm font-medium text-gray-700"
-            >
-              Apellidos
-            </Label>
+            <Label htmlFor="apellidos">Apellidos</Label>
             <Input
               id="apellidos"
               value={profile.apellidos}
               onChange={(e) => handleInputChange("apellidos", e.target.value)}
               placeholder="Ingresa tus apellidos"
-              className="mt-1"
             />
           </div>
         </div>
 
         {/* Email */}
         <div>
-          <Label htmlFor="email" className="text-sm font-medium text-gray-700">
-            Correo electrónico
-          </Label>
-          <div className="relative mt-1">
+          <Label htmlFor="email">Correo electrónico</Label>
+          <div className="relative">
             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input
               id="email"
@@ -82,13 +75,8 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
 
         {/* Teléfono */}
         <div>
-          <Label
-            htmlFor="telefono"
-            className="text-sm font-medium text-gray-700"
-          >
-            Número de teléfono
-          </Label>
-          <div className="relative mt-1">
+          <Label htmlFor="telefono">Número de teléfono</Label>
+          <div className="relative">
             <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input
               id="telefono"
@@ -108,13 +96,8 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
 
         {/* Dirección */}
         <div>
-          <Label
-            htmlFor="direccion"
-            className="text-sm font-medium text-gray-700"
-          >
-            Dirección
-          </Label>
-          <div className="relative mt-1">
+          <Label htmlFor="direccion">Dirección</Label>
+          <div className="relative">
             <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
             <Input
               id="direccion"

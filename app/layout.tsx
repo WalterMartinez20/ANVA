@@ -9,6 +9,7 @@ import Navbar from "@/components/navbar/navbar";
 import Cart from "@/components/cart/cart";
 import Footer from "@/components/home/footer";
 import CookieBanner from "@/components/ui/CookieBanner";
+// import { Toaster } from "sonner";
 
 const inter = Inter({ subsets: ["latin"] });
 

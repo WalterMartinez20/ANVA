@@ -103,7 +103,7 @@ export default function RegistroPage() {
         description: "Tu cuenta ha sido creada correctamente",
       });
 
-      router.push("/");
+      router.push("/perfil");
     } catch (error) {
       console.error("Registro fallido:", error);
       showError(error instanceof Error ? error.message : "Error desconocido");

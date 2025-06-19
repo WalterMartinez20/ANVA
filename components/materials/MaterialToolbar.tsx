@@ -96,16 +96,20 @@ export default function MaterialToolbar({
         {/* Filtro por categoría */}
         <div className="w-full max-w-xs">
           <Select
-            value={selectedCategoryId?.toString() ?? ""}
+            value={
+              selectedCategoryId !== null
+                ? selectedCategoryId.toString()
+                : "all"
+            }
             onValueChange={(value) =>
-              setSelectedCategoryId(value === "" ? null : parseInt(value))
+              setSelectedCategoryId(value === "all" ? null : parseInt(value))
             }
           >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Filtrar por categoría" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="none">Todas las categorías</SelectItem>
+              <SelectItem value="all">Todas las categorías</SelectItem>
               {categorias.map((cat) => (
                 <SelectItem key={cat.id} value={cat.id.toString()}>
                   {cat.nombre}
@@ -116,7 +120,7 @@ export default function MaterialToolbar({
         </div>
 
         {/* Filtro por nombre de propiedad */}
-        <div className="w-full max-w-xs">
+        {/* <div className="w-full max-w-xs">
           <Select
             value={propertyFilterKey}
             onValueChange={setPropertyFilterKey}
@@ -133,16 +137,16 @@ export default function MaterialToolbar({
               ))}
             </SelectContent>
           </Select>
-        </div>
+        </div> */}
 
         {/* Filtro por valor de propiedad */}
-        <div className="w-full max-w-xs">
+        {/* <div className="w-full max-w-xs">
           <Input
             placeholder="Valor de propiedad (ej: Rojo)"
             value={propertyFilterValue}
             onChange={(e) => setPropertyFilterValue(e.target.value)}
           />
-        </div>
+        </div> */}
       </div>
     </div>
   );
